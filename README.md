@@ -82,6 +82,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
 ```
 
 # Then run the following :
+execute :
 ```r
 execute(connectionDetails,
         connection,
