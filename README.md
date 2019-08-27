@@ -14,7 +14,7 @@ Dependencies
 * DatabaseConnector
 * plotly
 * dplyr
-
+* ggplot2
 Getting started
 ============
 In R, use the following commands to download and install:
