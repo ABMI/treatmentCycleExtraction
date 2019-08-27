@@ -31,10 +31,10 @@ How to run
 
 Drug condition setting :
 ```r
-Primary drugs should be in first day of regimen cycle.
-Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
-Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
-Multiple concept_id available and drug name is not necessary for excuting.
+## Primary drugs should be in first day of regimen cycle.
+## Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
+## Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
+## Multiple concept_id available and drug name is not necessary for excuting.
 
 primaryDrugList <- list(c(1367268))
 names(primaryDrugList) <- c('irinotecan')
@@ -48,30 +48,31 @@ names(eliminatoryDrugList) <- c('Bevacizumab')
 ## The cohort definition id of the target cohort:
 targetCohortId <-314
 
-Include descendants of drugs in list or not:
+## Include descendants of drugs in list or not:
 includeDescendant <- TRUE
 
-Drug records could be out of cohort period or not :
+## Drug records could be out of cohort period or not :
 outofCohortPeriod <- FALSE
 
-Period of observing secondary drug from primary drug used date :
+## Period of observing secondary drug from primary drug used date :
 drugObservationDate <- 7
 
-Each cycle start date should be apart as gap date, and gap date can be in range of +- date as gap date variation :
+## Each cycle start date should be apart as gap date, and gap date can be in range of +- date as gap date variation :
 gapDateBetweenCycle <-14
 gapDateVariation <-10
 
-maximum cycle number in this regimen :
+## Maximum cycle number in this regimen :
 maximumCycleNumber <-50
 
-The name of the database schema and table where the study-specific cohorts will be instantiated:
+## The name of the database schema and table where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <-'scratch.dbo'
 cohortTable <-'colon cancer'
 
-Generate all cycle records list of cohort in csv file ## It would be treatment episode table later...
+## Generate all cycle records list of cohort in csv file ## It would be treatment episode table later...
+
 createCsv <- TRUE
 
-Details for connecting to the server:
+## Details for connecting to the server:
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
@@ -80,7 +81,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 password=NULL)
 ```
 
-# Then run the following:
+# Then run the following :
 ```r
 execute(connectionDetails,
         connection,
