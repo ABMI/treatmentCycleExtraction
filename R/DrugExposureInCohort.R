@@ -11,6 +11,8 @@
 #' @paramtargetCohortId
 #' @keywords drug list
 #' @return list form drug exposure data list
+#' @import SqlRender
+#' @import DatabaseConnector
 #' @export
 #' @examples
 #' DrugListinCohort(connectionDetails,connection,cohortTable,includeDescendant,outofCohortPeriod,cohortDatabaseSchema,drugList,targetCohortId)

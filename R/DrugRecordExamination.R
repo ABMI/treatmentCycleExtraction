@@ -5,6 +5,7 @@
 #' @keywords primaryDrug, secondaryDrug,eliminatoryDrug
 #' @return drug condition passed index dates list
 #' @export
+#' @import dplyr
 #' @examples
 #' drugRecordExamination(subjectId = 11111111)
 

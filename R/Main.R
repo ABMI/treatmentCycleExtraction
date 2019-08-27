@@ -20,6 +20,9 @@
 #' @keywords execute
 #' @return histogram and count for subject distribution in repeated cycle,The number of distinct person_id in result, episode table in CSV file 
 #' @export
+#' @import dplyr
+#' @import plotly
+#' @import ggplot2
 #' @examples
 #' execute(connectionDetails,
 #' connection,

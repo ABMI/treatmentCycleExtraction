@@ -5,6 +5,7 @@
 #' @keywords gap date
 #' @return cycle result list of single subject in cohort
 #' @export
+#' @import dplyr
 #' @examples
 #' gapDateExamination(subjectId = 11111111)
 
