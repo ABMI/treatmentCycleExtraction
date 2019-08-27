@@ -24,8 +24,9 @@ install.packages("devtools")
 devtools::install_github("ABMI/treatmentCycleExtraction")
 
 library('treatmentCycleExtraction')
-
-## Parameter setting for algorithm :
+How to run
+============
+# Parameter setting for algorithm :
 
 parameter setting
  Drug condition setting :
@@ -78,7 +79,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 user=NULL,
                                                                 password=NULL)
                                                              
-Then run the following:
+# Then run the following:
 
 execute(connectionDetails,
         connection,
