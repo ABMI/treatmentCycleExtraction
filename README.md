@@ -30,11 +30,11 @@ How to run
 # Parameter setting for algorithm :
 
 Drug condition setting :
-
-## Primary drugs should be in first day of regimen cycle.
-## Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
-## Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
-## Multiple concept_id available and drug name is not necessary for excuting.
+```r
+Primary drugs should be in first day of regimen cycle.
+Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
+Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
+Multiple concept_id available and drug name is not necessary for excuting.
 
 primaryDrugList <- list(c(1367268))
 names(primaryDrugList) <- c('irinotecan')
@@ -78,9 +78,10 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 schema='cdmDatabaseSchema',
                                                                 user=NULL,
                                                                 password=NULL)
-                                                             
-# Then run the following:
+```
 
+# Then run the following:
+```r
 execute(connectionDetails,
         connection,
         cohortTable = cohortTable,
@@ -92,7 +93,7 @@ execute(connectionDetails,
         eliminatoryDrugList= eliminatoryDrugList,
         targetCohortId = targetCohortId,
         createCsv = createCsv)
-        
+```
 License
 =======
   treatmentCycleExtraction is licensed under Apache License 2.0
