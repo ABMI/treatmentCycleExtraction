@@ -69,11 +69,9 @@ cohortDatabaseSchema <-'scratch.dbo'
 cohortTable <-'colon cancer'
 
 ## Generate all cycle records list of cohort in csv file ## It would be treatment episode table later...
-
 createCsv <- TRUE
 
 ## Details for connecting to the server:
-
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
                                                                 schema='cdmDatabaseSchema',
