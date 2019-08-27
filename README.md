@@ -24,17 +24,17 @@ install.packages("devtools")
 devtools::install_github("ABMI/treatmentCycleExtraction")
 
 library('treatmentCycleExtraction')
+
 How to run
 ============
 # Parameter setting for algorithm :
 
-parameter setting
- Drug condition setting :
+Drug condition setting :
 
-Primary drugs should be in first day of regimen cycle.
-Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
-Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
-Multiple concept_id available and drug name is not necessary for excuting.
+## Primary drugs should be in first day of regimen cycle.
+## Secondary drugs are rest of drugs in your targeting regimen. Not necessary for excuting but recommanded.
+## Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
+## Multiple concept_id available and drug name is not necessary for excuting.
 
 primaryDrugList <- list(c(1367268))
 names(primaryDrugList) <- c('irinotecan')
@@ -45,7 +45,7 @@ names(secondaryDrugList) <- c('Fluorouracil','leucovorin')
 eliminatoryDrugList <- list(1397141)
 names(eliminatoryDrugList) <- c('Bevacizumab')
 
-The cohort definition id of the target cohort:
+## The cohort definition id of the target cohort:
 targetCohortId <-314
 
 Include descendants of drugs in list or not:
