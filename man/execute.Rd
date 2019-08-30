@@ -7,7 +7,7 @@
 execute(connectionDetails, connection, cohortTable, includeDescendant,
   outofCohortPeriod, cohortDatabaseSchema, primaryDrugList,
   secondaryDrugList, eliminatoryDrugList, targetCohortId,
-  createCsv = FALSE)
+  createCsv = FALSE, regimenName = "Unknown")
 }
 \arguments{
 \item{connectionDetails}{An object of type \code{connectionDetails} as created using the
@@ -35,6 +35,7 @@ primaryDrugList = primaryDrugList,
 secondaryDrugList = secondaryDrugList,
 eliminatoryDrugList= eliminatoryDrugList,
 targetCohortId = targetCohortId,
-createCsv = createCsv)
+createCsv = createCsv
+regimenName = 'FOLFOX')
 }
 \keyword{execute}

@@ -17,12 +17,12 @@
 #' @param targetCohortId
 #' @param createCsv
 #' @param targetCohortId
+#' @param regimenName
 #' @keywords execute
 #' @return histogram and count for subject distribution in repeated cycle,The number of distinct person_id in result, episode table in CSV file 
 #' @export
-#' @import dplyr
 #' @import plotly
-#' @import ggplot2
+#' @importFrom plotly last_plot
 #' @examples
 #' execute(connectionDetails,
 #' connection,
@@ -34,7 +34,8 @@
 #' secondaryDrugList = secondaryDrugList,
 #' eliminatoryDrugList= eliminatoryDrugList,
 #' targetCohortId = targetCohortId,
-#' createCsv = createCsv)
+#' createCsv = createCsv
+#' regimenName = 'FOLFOX')
 
 
 execute<-function(connectionDetails,
@@ -47,7 +48,8 @@ execute<-function(connectionDetails,
                   secondaryDrugList,
                   eliminatoryDrugList,
                   targetCohortId,
-                  createCsv = FALSE){
+                  createCsv = FALSE,
+                  regimenName = 'Unknown'){
   # All drug list calling
   connection <- DatabaseConnector::connect(connectionDetails)
   primaryDrugExposure <<- DrugListinCohort(connectionDetails,
@@ -76,32 +78,43 @@ execute<-function(connectionDetails,
                                                targetCohortId=targetCohortId)
   DatabaseConnector::disconnect(connection)
 
-  # drug & cycle condition check
+  # drug & cycle condition check (It will take some time)
   data<-lapply(unique(primaryDrugExposure[[1]]$SUBJECT_ID),function(i){gapDateExamination(subjectId = i)})
   # Generate total cycle list
 
   cycleListInCohort<- na.omit(do.call(rbind, data))
   cycleListInCohort$cycle_start_date<-as.Date(cycleListInCohort$cycle_start_date,origin="1970-01-01")
   cycleListInCohort<- data.frame(cycleListInCohort)
-  
+
   # Generate csv file
   if(createCsv){
-    dir.create("result")
-    write.csv(cycleListInCohort,file = "cycleExtraction.csv", row.name = T )
+    if(file.exists('result')){
+      fileName <- paste0('./result/cycleExtraction_',regimenName,'_',targetCohortId,'.csv')
+      if(!file.exists(fileName)){
+        write.csv(cycleListInCohort,file = fileName, row.names = FALSE )}else{
+          file.remove(fileName)
+          write.csv(cycleListInCohort,file = fileName, row.names = FALSE )}
+    }else{
+      dir.create("result")
+      fileName <- paste0('./result/cycleExtraction_',regimenName,'_',targetCohortId,'.csv')
+      write.csv(cycleListInCohort,file = fileName, row.names = FALSE )
     }
+  }
 
   # select max cycle in each person
   aggregateCycle<-aggregate(cycleListInCohort$cycle_num,by = list(cycleListInCohort$SUBJECT_ID), max)
-
+  colnames(aggregateCycle) <- c('SUBJECT_ID','Cycle_num')
+  
   # Histogram
-  histogram <- ggplot2::ggplot(aggregateCycle,aes(x=x)) + geom_histogram(alpha = 0.5,fill = 'deep sky blue4') + geom_density(fill = "khaki3",alpha = 0.4) + theme_minimal()
+  histogram <- ggplot2::ggplot(aggregateCycle, aes(x=Cycle_num)) + geom_histogram(fill = '#0078FF',alpha = 0.8,binwidth = 1) + theme_bw() + labs(x="Number of cycle repetitions in treatment line", y="Number of patient") 
+  histogram <- histogram + ggtitle("Histogram for treated cycle length") + theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 15))
   histogram <- plotly::ggplotly(histogram)
 
   # Total count
-  totalCount<-length(unique(aggregateCycle$Group.1))
+  totalCount<-length(unique(aggregateCycle$SUBJECT_ID))
 
   # Count in each cycle number
-  countEachcycle<-as.data.frame(aggregateCycle %>% group_by(x) %>% summarise(n = n()))
+  countEachcycle<-as.data.frame(aggregateCycle %>% group_by(Cycle_num) %>% summarise(n = n()))
   names(countEachcycle) <- c('cycleNum','n')
 
   return(list(countEachcycle = countEachcycle,histogram = histogram,totalCount = totalCount))

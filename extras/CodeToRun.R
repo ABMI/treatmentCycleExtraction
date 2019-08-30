@@ -6,14 +6,16 @@
 ### Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
 ### Multiple concept_id available and drug name is not necessary for excuting.
 
-primaryDrugList <- list(c(1367268))
-names(primaryDrugList) <- c('irinotecan')
+primaryDrugList <- list(955632)
+names(primaryDrugList) <- c('Fluorouracil')
 
-secondaryDrugList <- list(955632,c(1388796,19111620))
-names(secondaryDrugList) <- c('Fluorouracil','leucovorin')
+secondaryDrugList <- list(c(1318011),c(1388796,19111620))
+names(secondaryDrugList) <- c('Oxaliplatin','leucovorin')
 
 eliminatoryDrugList <- list(1397141)
 names(eliminatoryDrugList) <- c('Bevacizumab')
+
+regimenName <- 'FOLFOX'
 
 ## The cohort definition id of the target cohort:
 targetCohortId <-314
@@ -25,21 +27,22 @@ includeDescendant <- TRUE
 outofCohortPeriod <- FALSE
 
 ## Period of observing secondary drug from primary drug used date :
-drugObservationDate <- 7
+drugInspectionDate <- 7
 
 ## Each cycle start date should be apart as gap date, and gap date can be in range of +- date as gap date variation :
-gapDateBetweenCycle <-14
-gapDateVariation <-10
+gapDateBetweenCycle <-20
+gapDateVariation <-18
 
 ## maximum cycle number in this regimen :
 maximumCycleNumber <-50
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <-'scratch.dbo'
-cohortTable <-'colon cancer'
+cohortTable <-'cohort'
 
-## Generate all cycle records list of cohort in csv file ## It would be treatment episode table later...
-createCsv <- TRUE
+## Generate all cycle records list of cohort as csv file in working directory 
+## It would be treatment episode table later version...
+createCsv <- FALSE
 
 ## Details for connecting to the server:
 
@@ -61,7 +64,8 @@ execute(connectionDetails,
         secondaryDrugList = secondaryDrugList,
         eliminatoryDrugList= eliminatoryDrugList,
         targetCohortId = targetCohortId,
-        createCsv = createCsv)
+        createCsv = createCsv,
+        regimenName = regimenName)
 
 ##_____________________________________________________##
 

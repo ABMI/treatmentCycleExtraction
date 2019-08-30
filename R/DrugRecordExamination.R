@@ -42,11 +42,27 @@ drugRecordExamination<-function(subjectId){
     for(x in 1:length(indexDateList$DRUG_EXPOSURE_START_DATE)){
       resultin<-list()
       resultout<-list()
-      if(length(secondaryDrugList)!=0){for(i in 1:length(secondaryDrugList)){resultin[[i]] <- dplyr::filter(secondaryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugObservationDate))[1,2]}}
+      if(length(secondaryDrugList)!=0){
+        for(i in 1:length(secondaryDrugList)){
+          resultin[[i]] <- dplyr::filter(secondaryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugInspectionDate))[1,2]
+        }
+      }
       
-      if(length(eliminatoryDrugList)!=0){for(i in 1:length(eliminatoryDrugList)){resultout[[i]] <- dplyr::filter(eliminatoryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugObservationDate))[1,2]}}else{resultout[1]<-NA}
+      if(length(eliminatoryDrugList)!=0){
+        for(i in 1:length(eliminatoryDrugList)){
+          resultout[[i]] <- dplyr::filter(eliminatoryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugInspectionDate))[1,2]
+        }
+      }else{
+        resultout[1]<-NA}
       
-      if(sum(is.na(resultin))==0 & sum(is.na(resultout))!=0){drugExamPassedDate[x]<-indexDateList[x,]}}
+      if(sum(is.na(resultin))==0 & sum(!is.na(resultout))==0){
+        drugExamPassedDate[x]<-indexDateList[x,]
+      }
+    }
+    
     drugExamPassedDate <- na.omit(drugExamPassedDate)
     data.frame(drugExamPassedDate)
-  }else{drugExamPassedDate <- c()}}
+    
+  }else{
+    drugExamPassedDate <- c()
+  }}
