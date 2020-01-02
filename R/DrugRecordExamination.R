@@ -15,21 +15,24 @@ drugRecordExamination<-function(subjectId){
   
   ## Dispense date of primary drug is index date
   ## Generate index date list in one person
-  firstDayInCycle<- c()
+  
   primaryDrugExposureOneSubject <-lapply(1:length(primaryDrugList),
                                          function(i){primaryDrugExposure[[i]] %>% dplyr::filter (SUBJECT_ID == subjectId)})
+  
   
   if(length(primaryDrugList)>=2){for(i in 2:length(primaryDrugList))
   {primaryDrugConditionPassed = {primaryDrugExposureOneSubject[[i]]<-subset(primaryDrugExposureOneSubject[[1]],DRUG_EXPOSURE_START_DATE %in% primaryDrugExposureOneSubject[[i]]$DRUG_EXPOSURE_START_DATE)}
   }} else {primaryDrugConditionPassed = primaryDrugExposureOneSubject[[1]]}
   
-  indexDateList<-primaryDrugConditionPassed %>% select(DRUG_EXPOSURE_START_DATE)
+  indexDateList<-primaryDrugConditionPassed %>% select(DRUG_EXPOSURE_START_DATE,DRUG_EXPOSURE_END_DATE)
   
   ## Checking all drug condition
   ### The drug observation period is from the index date to the date as long as drug Observation Date.
   ### Secondary drug should be in the range of drug observation period and eliminatory drug should not be in.
   if(sum(!is.na(indexDateList))!=0){
     drugExamPassedDate <-c()
+    drugExamPassedStartDate <- c()
+    drugExamPassedEndDate <- c()
     
     if(length(secondaryDrugList)!=0){
       secondaryDrugExposureOneSubject <-lapply(1:length(secondaryDrugList),
@@ -42,27 +45,34 @@ drugRecordExamination<-function(subjectId){
     for(x in 1:length(indexDateList$DRUG_EXPOSURE_START_DATE)){
       resultin<-list()
       resultout<-list()
+      endDateList <-list()
       if(length(secondaryDrugList)!=0){
         for(i in 1:length(secondaryDrugList)){
-          resultin[[i]] <- dplyr::filter(secondaryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugInspectionDate))[1,2]
+          incheck <- dplyr::filter(secondaryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,1],indexDateList[x,1]+drugInspectionDate))
+          resultin[[i]] <-incheck[1,2]
+          endDateList[[i]] <- max(incheck$DRUG_EXPOSURE_END_DATE)
         }
       }
-      
+      ##
       if(length(eliminatoryDrugList)!=0){
         for(i in 1:length(eliminatoryDrugList)){
-          resultout[[i]] <- dplyr::filter(eliminatoryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,],indexDateList[x,]+drugInspectionDate))[1,2]
+          outcheck <- dplyr::filter(eliminatoryDrugExposureOneSubject[[i]],between(DRUG_EXPOSURE_START_DATE,indexDateList[x,1],indexDateList[x,1]+drugInspectionDate))
+          resultout[[i]] <- outcheck[1,2]
         }
       }else{
         resultout[1]<-NA}
       
       if(sum(is.na(resultin))==0 & sum(!is.na(resultout))==0){
-        drugExamPassedDate[x]<-indexDateList[x,]
+        drugExamPassedStartDate[x]<- indexDateList[x,1]
+        if(!is.null(drugExamPassedStartDate)){
+        endDate<-as.Date(max(do.call(rbind,endDateList)),origin="1970-01-01")
+        drugExamPassedEndDate[x]<- max(indexDateList[x,2],endDate)
+        }
       }
     }
-    
-    drugExamPassedDate <- na.omit(drugExamPassedDate)
-    data.frame(drugExamPassedDate)
-    
-  }else{
-    drugExamPassedDate <- c()
-  }}
+    if(!is.null(drugExamPassedStartDate)){
+    drugExamPassedDate <- data.frame(drugExamPassedStartDate,drugExamPassedEndDate)
+    drugExamPassedDate <- na.omit(drugExamPassedDate)}else{drugExamPassedDate <- c()}
+  } else{
+    drugExamPassedDate <- c()}
+}

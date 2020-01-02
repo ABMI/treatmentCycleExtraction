@@ -7,7 +7,9 @@
 execute(connectionDetails, connection, cohortTable, includeDescendant,
   outofCohortPeriod, cohortDatabaseSchema, primaryDrugList,
   secondaryDrugList, eliminatoryDrugList, targetCohortId,
-  createCsv = FALSE, regimenName = "Unknown")
+  createCsv = FALSE, resultsSaveInFile = FALSE,
+  regimenName = "Unknown", colorInHistogram = "FF8200",
+  regimenConceptId = regimenConceptId)
 }
 \arguments{
 \item{connectionDetails}{An object of type \code{connectionDetails} as created using the
@@ -35,7 +37,8 @@ primaryDrugList = primaryDrugList,
 secondaryDrugList = secondaryDrugList,
 eliminatoryDrugList= eliminatoryDrugList,
 targetCohortId = targetCohortId,
-createCsv = createCsv
-regimenName = 'FOLFOX')
+createCsv = createCsv,
+regimenName = 'FOLFOX',
+colorInHistogram = FF8200)
 }
 \keyword{execute}

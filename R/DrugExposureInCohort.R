@@ -18,7 +18,7 @@
 #' DrugListinCohort(connectionDetails,connection,cohortTable,includeDescendant,outofCohortPeriod,cohortDatabaseSchema,drugList,targetCohortId)
 
 # DrugExposureInCohort
-DrugExposureInCohort <-  function(connectionDetails,
+DrugExposureInCohort <- function(connectionDetails,
                                   connection,
                                   cohortTable,
                                   includeDescendant = TRUE,
