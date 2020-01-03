@@ -5,15 +5,30 @@
 ### Eliminatory drugs are drugs that distracting your targeting regimen. Not necessary for excuting.
 ### Multiple concept_id available and drug name is not necessary for excuting.
 
+## Details for connecting to the server:
+#install.packages('ParallelLogger')
+
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
+                                                                server=Sys.getenv("PDW_SERVER"),
+                                                                schema='cdmDatabaseSchema',
+                                                                user=NULL,
+                                                                password=NULL)
+
+# The name of the database schema and table where the study-specific cohorts will be instantiated:
+cohortDatabaseSchema <-'scratch.dbo'
+cohortTable <-'cohort'
+cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
+vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
+
 ## 1. Manual drug condition
-primaryDrugList <- list(955632)
-names(primaryDrugList) <- c('Fluorouracil')
+primaryDrugConceptIdList <- list(955632)
+names(primaryDrugConceptIdList) <- c('Fluorouracil')
 
-secondaryDrugList <- list(c(1318011),c(1388796,19111620))
-names(secondaryDrugList) <- c('Oxaliplatin','leucovorin')
+secondaryDrugConceptIdList <- list(c(1318011),c(1388796,19111620))
+names(secondaryDrugConceptIdList) <- c('Oxaliplatin','leucovorin')
 
-eliminatoryDrugList <- list()
-names(eliminatoryDrugList) <- c('Bevacizumab')
+excludingDrugConceptIdList <- list(1397141)
+names(excludingDrugConceptIdList) <- c('Bevacizumab')
 
 regimenName <- 'FOLFOX'
 regimenConceptId <- 35806596
@@ -25,8 +40,22 @@ regimenSetting(connectionDetails,
                vocaDatabaseSchema,
                regimenConceptId = regimenConceptId)
 
-## The cohort definition id of the target cohort:
-targetCohortId <-272
+## Create the cohort for treatmentCycleExtraction
+
+conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661)
+targetCohortId <- 10000
+
+createCohort(createCohortTable = FALSE,
+             connectionDetails = connectionDetails,
+             oracleTempSchema = NULL,
+             cdmDatabaseSchema = cdmDatabaseSchema,
+             cohortDatabaseSchema = cohortDatabaseSchema,
+             vocabularyDatabaseSchema = cdmDatabaseSchema,
+             cohortTable = cohortTable,
+             conceptIdSet = conceptIdSet,
+             includeConceptIdSetDescendant = TRUE,
+             targetCohortId = targetCohortId
+)
 
 ## Include descendants of drugs in list or not:
 includeDescendant <- TRUE
@@ -39,26 +68,15 @@ drugInspectionDate <- 7
 
 ## Each cycle start date should be apart as gap date, and gap date can be in range of +- date as gap date variation :
 gapDateBetweenCycle <-20
-gapDateAfter<-10  #+
-gapDateBefore<-5  #-
-
-# The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'scratch.dbo'
-cohortTable <-'cohort'
-vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
+gapDateAfter<-15  #+
+gapDateBefore<-10  #-
 
 ## Generate all cycle records list of cohort as csv file in working directory 
 ## It will be treatment episode table later version...
-createCsv <- FALSE
-resultsSaveInFile <- FALSE ## save histogram and distribution table
+createCsv <- TRUE
+resultsSaveInFile <- TRUE ## save histogram and distribution table
 colorInHistogram <- 'FF8200'
-## Details for connecting to the server:
 
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
-                                                                server=Sys.getenv("PDW_SERVER"),
-                                                                schema='cdmDatabaseSchema',
-                                                                user=NULL,
-                                                                password=NULL)
 
 
 ## Execute_____________________________________________##
@@ -69,9 +87,9 @@ execute(connectionDetails,
         includeDescendant = includeDescendant,
         outofCohortPeriod = outofCohortPeriod,
         cohortDatabaseSchema = cohortDatabaseSchema,
-        primaryDrugList = primaryDrugList,
-        secondaryDrugList = secondaryDrugList,
-        eliminatoryDrugList= eliminatoryDrugList,
+        primaryDrugConceptIdList = primaryDrugConceptIdList,
+        secondaryDrugConceptIdList = secondaryDrugConceptIdList,
+        excludingDrugConceptIdList= excludingDrugConceptIdList,
         targetCohortId = targetCohortId,
         createCsv = createCsv,
         resultsSaveInFile = resultsSaveInFile,
@@ -85,12 +103,14 @@ execute(connectionDetails,
 ## Insert episode table
 
 ##connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
-                                                                #server=Sys.getenv("PDW_SERVER"),
-                                                                #schema='cdmDatabaseSchema',
-                                                                #user=NULL,
-                                                                #password=NULL)
+#server=Sys.getenv("PDW_SERVER"),
+#schema='cdmDatabaseSchema',
+#user=NULL,
+#password=NULL)
 
 
 ##conn <- DatabaseConnector::connect(connectionDetails)
 ##DatabaseConnector::insertTable(conn, "FOLFOX", cycleListInCohort, createTable = TRUE, progressBar = TRUE )
 ##DatabaseConnector::disconnect(conn)
+
+
