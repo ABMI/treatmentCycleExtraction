@@ -66,6 +66,8 @@ createCohort <- function(createCohortTable = F,
                                            condition_concept_ids = paste(conceptIdSet,collapse=","),
                                            target_cohort_id = targetCohortId)
   DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+  
+  DatabaseConnector::disconnect(connection)
 }
 
 
