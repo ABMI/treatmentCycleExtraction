@@ -108,7 +108,11 @@ execute(connectionDetails,
         secondaryDrugList = secondaryDrugList,
         eliminatoryDrugList= eliminatoryDrugList,
         targetCohortId = targetCohortId,
-        createCsv = createCsv)
+        createCsv = createCsv,
+        resultsSaveInFile = resultsSaveInFile,
+        regimenName = regimenName,
+        colorInHistogram = colorInHistogram,
+        regimenConceptId =regimenConceptId)
 ```
 License
 =======
