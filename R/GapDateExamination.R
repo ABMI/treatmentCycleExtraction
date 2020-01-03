@@ -12,8 +12,14 @@
 # gapDateExamination
 
 
-gapDateExamination<-function(subjectId){
-  if(!is.null(drugRecordExamination(subjectId))){
+gapDateExamination<-function(targetSubjectId,
+                             primaryDrugExposure= primaryDrugExposure,
+                             secondaryDrugExposure = secondaryDrugExposure,
+                             drugInspectionDate =drugInspectionDate){
+  if(!is.null(drugRecordExamination(targetSubjectId,
+                                    primaryDrugExposure= primaryDrugExposure,
+                                    secondaryDrugExposure = secondaryDrugExposure,
+                                    drugInspectionDate =drugInspectionDate))){
     
     allDrugPassed<- drugRecordExamination(subjectId)
     drugExamPassedStartDate<-allDrugPassed$drugExamPassedStartDate
@@ -21,7 +27,7 @@ gapDateExamination<-function(subjectId){
     drugExamPassedDate$lagdate <- data.table::shift(drugExamPassedDate$drugExamPassedStartDate,fill = drugExamPassedDate$drugExamPassedStartDate[1])
     drugExamPassedDate$datediff <-drugExamPassedDate$drugExamPassedStartDate-drugExamPassedDate$lagdate
     drugExamPassedDate$datediff[1] <- 'first'
-    drugExamPassedStartDate<-subset(drugExamPassedDate,datediff>=gapDateBetweenCycle-gapDateBefore|datediff == 'first')$drugExamPassedStartDate
+    drugExamPassedStartDate<-subset(drugExamPassedDate,datediff >= gapDateBetweenCycle-gapDateBefore|datediff == 'first')$drugExamPassedStartDate
     drugExamPassedDate<-as.data.frame(drugExamPassedStartDate)
     ## Generate first date list of cycle. From very first record of date list, until next cycle date cannot be found.
     
