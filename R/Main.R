@@ -1,10 +1,15 @@
+#' Populating chemotherapy regimens
+#' @param connectionDetails An object of type \code{connectionDetails} as created using the
+#'                          \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
+#'                          DatabaseConnector package.
+
+
 #' Excute
 #'
 #' Excute the Study
 #' @param connectionDetails An object of type \code{connectionDetails} as created using the
 #'                          \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
 #'                          DatabaseConnector package.
-#' @param connection
 #' @param cohortTable The name of the table that will be created in the work database schema.
 #'                    This table will hold the exposure and outcome cohorts used in this
 #'                    study.
@@ -41,56 +46,82 @@
 
 
 execute<-function(connectionDetails,
-                  connection,
                   cohortTable,
-                  includeDescendant,
-                  outofCohortPeriod,
+                  includeDescendant = T,
+                  outofCohortPeriod = F,
                   cohortDatabaseSchema,
-                  primaryDrugList,
-                  secondaryDrugList,
-                  eliminatoryDrugList,
+                  vocaDatabaseSchema,
+                  primaryDrugConceptIdList,
+                  secondaryDrugConceptIdList,
+                  excludingDrugConceptIdList,
                   targetCohortId,
                   createCsv = FALSE,
                   resultsSaveInFile = FALSE,
                   regimenName = 'Unknown',
                   colorInHistogram = 'FF8200',
-                  regimenConceptId = regimenConceptId
+                  regimenConceptId = regimenConceptId, 
+                  maxCores = 1
                   ){
+  if(length(primaryDrugConceptIdList) !=1 ) stop ("The length of primary Drug Concept Id list should be 1.")
+  
+  ##wholeDrugConceptIds<-unlist(list(primaryDrugConceptIdList,secondaryDrugConceptIdList,excludingDrugConceptIdList),use.names=FALSE)
+  ##if( length(unique(wholeDrugConceptIds)) !=  length(wholeDrugConceptIds)) stop ("It is not allowed to have an overalp between primary, secondary and excluding drug concept ID sets")
+  
   # All drug list calling
   connection <- DatabaseConnector::connect(connectionDetails)
-  primaryDrugExposure <<- DrugListinCohort(connectionDetails,
-                                          connection,
+  
+  primaryDrugExposure <- DrugListinCohort(connection,
                                           cohortTable = cohortTable,
                                           includeDescendant=includeDescendant,
                                           outofCohortPeriod = outofCohortPeriod,
+                                          cdmDatabaseSchema = cdmDatabaseSchema,
                                           cohortDatabaseSchema=cohortDatabaseSchema,
-                                          drugList=primaryDrugList,
+                                          drugList= primaryDrugConceptIdList,
                                           targetCohortId=targetCohortId)
-  print('primary drug list loaded')
-  secondaryDrugExposure <<- DrugListinCohort(connectionDetails,
-                                             connection,
-                                             cohortTable = cohortTable,
-                                             includeDescendant=includeDescendant,
-                                             outofCohortPeriod = outofCohortPeriod,
-                                             cohortDatabaseSchema=cohortDatabaseSchema,
-                                             drugList=secondaryDrugList,
-                                             targetCohortId=targetCohortId)
-  print('secondary drug list loaded')
-  eliminatoryDrugExposure <<- DrugListinCohort(connectionDetails,
-                                               connection,
-                                               cohortTable = cohortTable,
-                                               includeDescendant=includeDescendant,
-                                               outofCohortPeriod = outofCohortPeriod,
-                                               cohortDatabaseSchema=cohortDatabaseSchema,
-                                               drugList=eliminatoryDrugList,
-                                               targetCohortId=targetCohortId)
-  print('eliminatory drug list loaded')
-  DatabaseConnector::disconnect(connection)
- 
- # drug & cycle condition check (It will take some time)
-  data<-lapply(unique(primaryDrugExposure[[1]]$SUBJECT_ID),function(i){gapDateExamination(subjectId = i)})
-  print('condition check finish')
+  primaryDrugExposure<-primaryDrugExposure[[1]]
+  colnames(primaryDrugExposure) <- SqlRender::snakeCaseToCamelCase(colnames(primaryDrugExposure))
+  #lapply(primaryDrugExposure, function(x) colnames(x)<- SqlRender::snakeCaseToCamelCase(colnames(x)))
+  ParallelLogger::logInfo("Primary Drug Exposure records are loaded")
+  
+  secondaryDrugExposure <- DrugListinCohort(connection,
+                                          cohortTable = cohortTable,
+                                          includeDescendant=includeDescendant,
+                                          outofCohortPeriod = outofCohortPeriod,
+                                          cdmDatabaseSchema = cdmDatabaseSchema,
+                                          cohortDatabaseSchema=cohortDatabaseSchema,
+                                          drugList= secondaryDrugConceptIdList,
+                                          targetCohortId=targetCohortId)
+  ParallelLogger::logInfo("Secondary Drug Exposure records are loaded")
+  
+  excludingDrugExposure <- DrugListinCohort(connection,
+                                          cohortTable = cohortTable,
+                                          includeDescendant=includeDescendant,
+                                          outofCohortPeriod = outofCohortPeriod,
+                                          cdmDatabaseSchema = cdmDatabaseSchema,
+                                          cohortDatabaseSchema=cohortDatabaseSchema,
+                                          drugList= excludingDrugConceptIdList,
+                                          targetCohortId=targetCohortId)
+  ParallelLogger::logInfo("Excluding Drug Exposure records are loaded")
 
+  DatabaseConnector::disconnect(connection)
+
+  # drug & cycle condition check (It will take some time)
+  #cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
+  #ParallelLogger::clusterApply(cluster, unique(primaryDrugExposure$subjectId), gapDateExamination, 
+  #             primaryDrugExposure= primaryDrugExposure,
+  #             secondaryDrugExposure = secondaryDrugExposure,
+  #             drugInspectionDate =drugInspectionDate)
+  
+  data<-lapply(unique(primaryDrugExposure$subjectId),function(targetSubjectId){gapDateExamination(targetSubjectId=targetSubjectId,
+                                                                                                  primaryDrugExposure=primaryDrugExposure,
+                                                                                                  secondaryDrugExposure=secondaryDrugExposure,
+                                                                                                  excludingDrugExposure=excludingDrugExposure,
+                                                                                                  drugInspectionDate=drugInspectionDate,
+                                                                                                  secondaryDrugConceptIdList=secondaryDrugConceptIdList,
+                                                                                                  excludingDrugConceptIdList=excludingDrugConceptIdList)})
+  ParallelLogger::logInfo("condition check finish")
+
+  
   # Generate total cycle list
   cycleListInCohort<- na.omit(do.call(rbind, data))
   cycleListInCohort$cycle_start_date<-as.Date(cycleListInCohort$cycle_start_date,origin="1970-01-01")
