@@ -58,8 +58,8 @@ where row_num = 1"
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   excludingDrugConceptIdList <- DatabaseConnector::querySql(connection, sql)
   
-  if(length(excludingDrugConceptIdList$excludingDRUG)!=0){
-  excludingDrugConceptIdList <<- list(excludingDrugConceptIdList$excludingDRUG)}
+  if(length(excludingDrugConceptIdList$EXCLUDINGDRUG)!=0){
+  excludingDrugConceptIdList <<- list(excludingDrugConceptIdList$EXCLUDINGDRUG)}
   else {excludingDrugConceptIdList <<- list()}
   
   DatabaseConnector::disconnect(connection)

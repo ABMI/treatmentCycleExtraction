@@ -4,7 +4,7 @@
 #' @param subjectId : targeting subject_id in target cohort
 #' @keywords primaryDrug, secondaryDrug,eliminatoryDrug
 #' @return drug condition passed index dates list
-#' @export
+#' @export drugRecordExamination
 #' @import dplyr
 #' @examples
 #' drugRecordExamination(subjectId = 11111111)

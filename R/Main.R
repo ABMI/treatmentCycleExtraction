@@ -29,6 +29,7 @@
 #' @export
 #' @import plotly
 #' @import ggplot2
+#' @import DrugListinCohort
 #' @examples
 #' execute(connectionDetails,
 #' connection,
@@ -71,6 +72,7 @@ execute<-function(connectionDetails,
   connection <- DatabaseConnector::connect(connectionDetails)
   
   primaryDrugExposure <- DrugListinCohort(connection,
+                                          connectionDetails = connectionDetails,
                                           cohortTable = cohortTable,
                                           includeDescendant=includeDescendant,
                                           outofCohortPeriod = outofCohortPeriod,
@@ -84,23 +86,25 @@ execute<-function(connectionDetails,
   ParallelLogger::logInfo("Primary Drug Exposure records are loaded")
   
   secondaryDrugExposure <- DrugListinCohort(connection,
-                                          cohortTable = cohortTable,
-                                          includeDescendant=includeDescendant,
-                                          outofCohortPeriod = outofCohortPeriod,
-                                          cdmDatabaseSchema = cdmDatabaseSchema,
-                                          cohortDatabaseSchema=cohortDatabaseSchema,
-                                          drugList= secondaryDrugConceptIdList,
-                                          targetCohortId=targetCohortId)
+                                            connectionDetails = connectionDetails,
+                                            cohortTable = cohortTable,
+                                            includeDescendant=includeDescendant,
+                                            outofCohortPeriod = outofCohortPeriod,
+                                            cdmDatabaseSchema = cdmDatabaseSchema,
+                                            cohortDatabaseSchema=cohortDatabaseSchema,
+                                            drugList= secondaryDrugConceptIdList,
+                                            targetCohortId=targetCohortId)
   ParallelLogger::logInfo("Secondary Drug Exposure records are loaded")
   
   excludingDrugExposure <- DrugListinCohort(connection,
-                                          cohortTable = cohortTable,
-                                          includeDescendant=includeDescendant,
-                                          outofCohortPeriod = outofCohortPeriod,
-                                          cdmDatabaseSchema = cdmDatabaseSchema,
-                                          cohortDatabaseSchema=cohortDatabaseSchema,
-                                          drugList= excludingDrugConceptIdList,
-                                          targetCohortId=targetCohortId)
+                                            connectionDetails = connectionDetails,
+                                            cohortTable = cohortTable,
+                                            includeDescendant=includeDescendant,
+                                            outofCohortPeriod = outofCohortPeriod,
+                                            cdmDatabaseSchema = cdmDatabaseSchema,
+                                            cohortDatabaseSchema=cohortDatabaseSchema,
+                                            drugList= excludingDrugConceptIdList,
+                                            targetCohortId=targetCohortId)
   ParallelLogger::logInfo("Excluding Drug Exposure records are loaded")
 
   DatabaseConnector::disconnect(connection)
@@ -123,7 +127,7 @@ execute<-function(connectionDetails,
 
   
   # Generate total cycle list
-  cycleListInCohort<- na.omit(do.call(rbind, data))
+  cycleListInCohort<- na.omit(rbindlist(data))
   cycleListInCohort$cycle_start_date<-as.Date(cycleListInCohort$cycle_start_date,origin="1970-01-01")
   cycleListInCohort$cycle_end_date<-as.Date(cycleListInCohort$cycle_end_date,origin="1970-01-01")
   cycleListInCohort$episode_type_concept_id <-32545
