@@ -7,6 +7,7 @@
 #' @export
 #' @import dplyr
 #' @import data.table
+#' @import drugRecordExamination
 #' @examples
 #' gapDateExamination(targetSubjectIdsubjectId = 11111111)
 # gapDateExamination
@@ -75,7 +76,7 @@ gapDateExamination<-function(targetSubjectId,
       return(cycle)
     }
     )
-    subjectCycleList<- do.call(rbind, subjectCycleList)
+    subjectCycleList<- rbindlist(subjectCycleList) 
     return(subjectCycleList)
   } else {
     cycle_start_date<-NA

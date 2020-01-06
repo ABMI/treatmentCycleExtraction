@@ -10,12 +10,14 @@
 #' @paramtargetCohortId
 #' @keywords drug list
 #' @return list form drug exposure data list
-#' @export
+#' @export DrugListinCohort
 #' @examples
 #' DrugListinCohort(connectionDetails,connection,cohortTable,includeDescendant,outofCohortPeriod,cohortDatabaseSchema,drugList,targetCohortId)
 
 # DrugExposureInCohort
+
 DrugExposureInCohort <- function(connection,
+                                 connectionDetails,
                                  cohortTable,
                                  includeDescendant = TRUE,
                                  outofCohortPeriod = TRUE,
@@ -41,6 +43,7 @@ DrugExposureInCohort <- function(connection,
 }
 # Get list of DrugExposureInCohort
 DrugListinCohort <- function(connection,
+                             connectionDetails,
                              cohortTable,
                              includeDescendant,
                              outofCohortPeriod,
@@ -50,6 +53,7 @@ DrugListinCohort <- function(connection,
                              drugList,
                              targetCohortId){
   result<-lapply(drugList,function(targetConceptIds){DrugExposureInCohort(connection,
+                                                                          connectionDetails,
                                                                           cohortTable,
                                                                           includeDescendant,
                                                                           outofCohortPeriod,
