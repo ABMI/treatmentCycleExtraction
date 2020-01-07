@@ -101,7 +101,16 @@ execute(connectionDetails,
         regimenConceptId =regimenConceptId)
 
 ##_____________________________________________________##
-
+#path <- location of result episode_table 
+#dir <- ("path")
+#file_list <- list.files(dir)
+#data <- data.frame()
+#for (file in file_list) {
+#        print(file)
+#        temp <- read.csv(paste(dir, file, sep = "\\"),header = TRUE, sep=",",stringsAsFactors = FALSE)
+#        data <- rbind(data,temp)
+#}
+#head(data)
 
 ## Insert episode table
 
@@ -113,7 +122,7 @@ execute(connectionDetails,
 
 
 ##conn <- DatabaseConnector::connect(connectionDetails)
-##DatabaseConnector::insertTable(conn, "FOLFOX", cycleListInCohort, createTable = TRUE, progressBar = TRUE )
+##DatabaseConnector::insertTable(conn, "FOLFOX", data, createTable = TRUE, progressBar = TRUE )
 ##DatabaseConnector::disconnect(conn)
 
 
