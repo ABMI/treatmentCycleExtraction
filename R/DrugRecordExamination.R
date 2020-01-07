@@ -23,17 +23,10 @@ drugRecordExamination<-function(targetSubjectId,
   ## Dispense date of primary drug is index date
   ## Generate index date list in one person
   
-  # primaryDrugExposureOneSubject <-lapply(1:length(primaryDrugList),
-  #                                        function(i){primaryDrugExposure %>% dplyr::filter (subjectId == subjectId)})
-  # if(length(primaryDrugList)>=2){for(i in 2:length(primaryDrugList))
-  # {primaryDrugConditionPassed = {primaryDrugExposureOneSubject[[i]]<-subset(primaryDrugExposureOneSubject[[1]],DRUG_EXPOSURE_START_DATE %in% primaryDrugExposureOneSubject[[i]]$DRUG_EXPOSURE_START_DATE)}
-  # }} else {primaryDrugConditionPassed = primaryDrugExposureOneSubject[[1]]}
-  
-  #indexDateList <- primaryDrugConditionPassed %>% select(DRUG_EXPOSURE_START_DATE,DRUG_EXPOSURE_END_DATE)
-  
   indexDateList <- primaryDrugExposure %>% filter(subjectId == targetSubjectId) %>% dplyr::select(subjectId,drugExposureStartDate,drugExposureEndDate)
   
   indexDateList <- unique(indexDateList)
+  
   ## Checking all drug condition
   ### The drug observation period is from the index date to the date as long as drug Observation Date.
   ### Secondary drug should be in the range of drug observation period and eliminatory drug should not be in.

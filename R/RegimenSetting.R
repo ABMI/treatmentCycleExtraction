@@ -11,7 +11,10 @@
 #' @import SqlRender
 #' @import DatabaseConnector
 #' @examples
-#' regimenSetting()
+#' regimenSetting(connectionDetails = connectionDetails,
+#' connection = connection,
+#' vocaDatabaseSchema = connectionDetails$schema,
+#' regimenConceptId = regimenConceptId)
 
 # excludingDrugExtraction
 regimenSetting <- function(connectionDetails,
