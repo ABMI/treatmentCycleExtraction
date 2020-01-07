@@ -51,7 +51,6 @@ where row_num = 1"
   regimenDrugNo <- length(primaryDrugConceptIdList)+length(secondaryDrugConceptIdList$SECONDARY_DRUG_LIST)
   secondaryDrugConceptIdList <<- lapply(secondaryDrugConceptIdList$SECONDARY_DRUG_LIST,function(x){x})
 
-  connection <- DatabaseConnector::connect(connectionDetails)
   pathToSql <- system.file("sql/sql_server", "excludingDrugSelection.sql", package = "treatmentCycleExtraction")
   
   sql <- SqlRender::readSql(pathToSql)
