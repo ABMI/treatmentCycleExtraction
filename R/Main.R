@@ -62,11 +62,8 @@ execute<-function(connectionDetails,
                   colorInHistogram = 'FF8200',
                   regimenConceptId = regimenConceptId, 
                   maxCores = 1
-                  ){
+){
   if(length(primaryDrugConceptIdList) !=1 ) stop ("The length of primary Drug Concept Id list should be 1.")
-  
-  ##wholeDrugConceptIds<-unlist(list(primaryDrugConceptIdList,secondaryDrugConceptIdList,excludingDrugConceptIdList),use.names=FALSE)
-  ##if( length(unique(wholeDrugConceptIds)) !=  length(wholeDrugConceptIds)) stop ("It is not allowed to have an overalp between primary, secondary and excluding drug concept ID sets")
   
   # All drug list calling
   connection <- DatabaseConnector::connect(connectionDetails)
@@ -82,7 +79,7 @@ execute<-function(connectionDetails,
                                           targetCohortId=targetCohortId)
   primaryDrugExposure<-primaryDrugExposure[[1]]
   colnames(primaryDrugExposure) <- SqlRender::snakeCaseToCamelCase(colnames(primaryDrugExposure))
-  #lapply(primaryDrugExposure, function(x) colnames(x)<- SqlRender::snakeCaseToCamelCase(colnames(x)))
+
   ParallelLogger::logInfo("Primary Drug Exposure records are loaded")
   
   secondaryDrugExposure <- DrugListinCohort(connection,
@@ -106,25 +103,24 @@ execute<-function(connectionDetails,
                                             drugList= excludingDrugConceptIdList,
                                             targetCohortId=targetCohortId)
   ParallelLogger::logInfo("Excluding Drug Exposure records are loaded")
-
-  DatabaseConnector::disconnect(connection)
-
-  # drug & cycle condition check (It will take some time)
-  #cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
-  #ParallelLogger::clusterApply(cluster, unique(primaryDrugExposure$subjectId), gapDateExamination, 
-  #             primaryDrugExposure= primaryDrugExposure,
-  #             secondaryDrugExposure = secondaryDrugExposure,
-  #             drugInspectionDate =drugInspectionDate)
   
-  data<-lapply(unique(primaryDrugExposure$subjectId),function(targetSubjectId){gapDateExamination(targetSubjectId=targetSubjectId,
-                                                                                                  primaryDrugExposure=primaryDrugExposure,
-                                                                                                  secondaryDrugExposure=secondaryDrugExposure,
-                                                                                                  excludingDrugExposure=excludingDrugExposure,
-                                                                                                  drugInspectionDate=drugInspectionDate,
-                                                                                                  secondaryDrugConceptIdList=secondaryDrugConceptIdList,
-                                                                                                  excludingDrugConceptIdList=excludingDrugConceptIdList)})
+  DatabaseConnector::disconnect(connection)
+  
+  # drug & cycle condition check (It will take some time)
+  cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
+  data <- ParallelLogger::clusterApply(cluster, unique(primaryDrugExposure$subjectId), gapDateExamination,
+                                       primaryDrugExposure,
+                                       secondaryDrugExposure,
+                                       excludingDrugExposure,
+                                       drugInspectionDate,
+                                       secondaryDrugConceptIdList,
+                                       excludingDrugConceptIdList,
+                                       gapDateBetweenCycle,
+                                       gapDateBefore,
+                                       gapDateAfter)
+  
   ParallelLogger::logInfo("condition check finish")
-
+  
   
   # Generate total cycle list
   cycleListInCohort<- na.omit(rbindlist(data))
@@ -151,6 +147,7 @@ execute<-function(connectionDetails,
                                 'episode_source_concept_id')
   cycleList <- data.frame(cycleListInCohort)
   cycleListInCohort <- cycleList[,c(9,1,6,2,4,7,3,8,5,10,11)]
+  
   # Generate csv file
   if(createCsv){
     if(file.exists('result')){
@@ -165,16 +162,16 @@ execute<-function(connectionDetails,
       write.csv(cycleListInCohort,file = fileName, row.names = FALSE )
     }
   }
-
-  # select max cycle in each person
+  
+  # select max cycle number in the same treatment line in each person
   aggregateCycle<-aggregate(cycleListInCohort$episode_number,by = list(cycleListInCohort$person_id), max)
   colnames(aggregateCycle) <- c('person_id','Cycle_num')
   
-
+  
   # Total count
   totalCount<-length(unique(aggregateCycle$person_id))
   
-  # Count in each cycle number
+  # Count the number of patients in the value of each cycle number
   countEachcycle<-as.data.frame(aggregateCycle %>% group_by(Cycle_num) %>% summarise(n = n()))
   countEachcycle$'%'<-round(prop.table(table(aggregateCycle$Cycle_num))*100, digits = 1)
   sum<- sum(countEachcycle$n)
@@ -193,8 +190,8 @@ execute<-function(connectionDetails,
       fileName <- paste0('./result/distribution_',regimenName,'_',targetCohortId,'.csv')
       write.csv(countEachcycle,file = distributionFileName, row.names = FALSE )
     }}
-  # Histogram
   
+  # Histogram for maximum repeated cycle number distribution
   histogramColor <- paste0('#',colorInHistogram)
   histogram <- ggplot2::ggplot(aggregateCycle, aes(x=Cycle_num)) + geom_histogram(fill = histogramColor ,alpha = 0.8,binwidth = 1) + theme_bw() + labs(x="Treatment cycle", y="Number of patients") 
   histogram <- histogram + ggtitle("Histogram of treated cycle length") + theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 15)) + scale_x_continuous(breaks=seq(1:max(countEachcycle$`Treatment cycle`)))

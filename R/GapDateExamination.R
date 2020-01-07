@@ -18,7 +18,10 @@ gapDateExamination<-function(targetSubjectId,
                              excludingDrugExposure,
                              drugInspectionDate,
                              secondaryDrugConceptIdList,
-                             excludingDrugConceptIdList){
+                             excludingDrugConceptIdList,
+                             gapDateBetweenCycle,
+                             gapDateBefore,
+                             gapDateAfter){
   allDrugPassed<-drugRecordExamination(targetSubjectId,
                                        primaryDrugExposure,
                                        secondaryDrugExposure,
@@ -76,15 +79,17 @@ gapDateExamination<-function(targetSubjectId,
       return(cycle)
     }
     )
-    subjectCycleList<- rbindlist(subjectCycleList) 
+    subjectCycleList<- data.table::rbindlist(subjectCycleList)
+    
     return(subjectCycleList)
   } else {
     cycle_start_date<-NA
     cycle_end_date <- NA
     cycle_num <-NA
     SUBJECT_ID <-NA
-    cycle <- data.frame(SUBJECT_ID,cycle_start_date,cycle_num,cycle_end_date)
-    return(cycle)
+    subjectCycleList <- data.frame(SUBJECT_ID,cycle_start_date,cycle_num,cycle_end_date)
+
+    return(subjectCycleList)
   }
 }
 

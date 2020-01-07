@@ -71,6 +71,9 @@ gapDateBetweenCycle <-20
 gapDateAfter<-15  #+
 gapDateBefore<-10  #-
 
+## The number of cores in use
+maxCores <- 4
+
 ## Generate all cycle records list of cohort as csv file in working directory 
 ## It will be treatment episode table later version...
 createCsv <- TRUE
