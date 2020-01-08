@@ -121,9 +121,9 @@ execute<-function(connectionDetails,
   
   ParallelLogger::logInfo("condition check finish")
   
-  
+
   # Generate total cycle list
-  cycleListInCohort<- na.omit(rbindlist(data))
+  cycleListInCohort<- na.omit(data.table::rbindlist(data))
   cycleListInCohort$cycle_start_date<-as.Date(cycleListInCohort$cycle_start_date,origin="1970-01-01")
   cycleListInCohort$cycle_end_date<-as.Date(cycleListInCohort$cycle_end_date,origin="1970-01-01")
   cycleListInCohort$episode_type_concept_id <-32545
