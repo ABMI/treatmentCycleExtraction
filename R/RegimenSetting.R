@@ -29,16 +29,16 @@ where row_num = 1"
                            voca_database_schema = vocaDatabaseSchema,
                            regimen_concept_id=regimenConceptId)
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
-  indexDrugConceptId <<- DatabaseConnector::querySql(connection, sql)[,1]
+  indexDrugConceptId <- DatabaseConnector::querySql(connection, sql)[,1]
   sql <- "select concept_name from @voca_database_schema.concept where concept_id = @regimen_concept_id"
   sql <- SqlRender::render(sql,
                            voca_database_schema = vocaDatabaseSchema,
                            regimen_concept_id=regimenConceptId)
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   
-  regimenName<<-DatabaseConnector::querySql(connection, sql)[,1]
+  regimenName<-DatabaseConnector::querySql(connection, sql)[,1]
   
-  primaryDrugConceptIdList <<- list(indexDrugConceptId) 
+  primaryDrugConceptIdList <- list(indexDrugConceptId) 
   
   pathToSql <- system.file("sql/sql_server", "secondaryDrugSelection.sql", package = "treatmentCycleExtraction")
   sql <- SqlRender::readSql(pathToSql)
@@ -49,7 +49,7 @@ where row_num = 1"
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   secondaryDrugConceptIdList <- DatabaseConnector::querySql(connection, sql)
   regimenDrugNo <- length(primaryDrugConceptIdList)+length(secondaryDrugConceptIdList$SECONDARY_DRUG_LIST)
-  secondaryDrugConceptIdList <<- lapply(secondaryDrugConceptIdList$SECONDARY_DRUG_LIST,function(x){x})
+  secondaryDrugConceptIdList <- lapply(secondaryDrugConceptIdList$SECONDARY_DRUG_LIST,function(x){x})
 
   pathToSql <- system.file("sql/sql_server", "excludingDrugSelection.sql", package = "treatmentCycleExtraction")
   
@@ -61,8 +61,8 @@ where row_num = 1"
   excludingDrugConceptIdList <- DatabaseConnector::querySql(connection, sql)
   
   if(length(excludingDrugConceptIdList$EXCLUDINGDRUG)!=0){
-  excludingDrugConceptIdList <<- list(excludingDrugConceptIdList$EXCLUDINGDRUG)}
-  else {excludingDrugConceptIdList <<- list()}
+  excludingDrugConceptIdList <- list(excludingDrugConceptIdList$EXCLUDINGDRUG)}
+  else {excludingDrugConceptIdList <- list()}
   
   DatabaseConnector::disconnect(connection)
  
