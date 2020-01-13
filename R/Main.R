@@ -13,128 +13,151 @@
 #' @param cohortTable The name of the table that will be created in the work database schema.
 #'                    This table will hold the exposure and outcome cohorts used in this
 #'                    study.
-#' @param includeDescendant
-#' @param outofCohortPeriod
+#' @param targetRegimenConceptIds The concept id list of the regimen  
+#' @param connectionDetails
+#' @param cohortTable
+#' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
-#' @param primaryDrugList
-#' @param secondaryDrugList
 #' @param eliminatoryDrugList
 #' @param targetCohortId
-#' @param createCsv
-#' @param targetCohortId
-#' @param regimenName
-#' @param colorInHistogram
-#' @keywords execute
-#' @return histogram and count for subject distribution in repeated cycle,The number of distinct person_id in result, episode table in CSV file 
-#' @export
-#' @import plotly
-#' @import ggplot2
-#' @import DrugListinCohort
+#' @param maxCores
+#' @keywords generateEpisodeTable
+#' @return Generated episode table 
+#' @export generateEpisodeTable
 #' @examples
-#' execute(connectionDetails,
-#' connection,
-#' cohortTable = cohortTable,
-#' includeDescendant = includeDescendant,
-#' outofCohortPeriod = outofCohortPeriod,
-#' cohortDatabaseSchema = cohortDatabaseSchema,
-#' primaryDrugList = primaryDrugList,
-#' secondaryDrugList = secondaryDrugList,
-#' eliminatoryDrugList= eliminatoryDrugList,
-#' targetCohortId = targetCohortId,
-#' createCsv = createCsv,
-#' regimenName = 'FOLFOX',
-#' colorInHistogram = FF8200)
+#' generateEpisodeTable(targetRegimenConceptIds,
+#'                     connectionDetails,
+#'                     cohortTable,
+#'                     cdmDatabaseSchema,
+#'                     cohortDatabaseSchema,
+#'                     targetCohortId,
+#'                     maxCores)
 
-
-execute<-function(connectionDetails,
-                  cohortTable,
-                  includeDescendant = T,
-                  outofCohortPeriod = F,
-                  cohortDatabaseSchema,
-                  vocaDatabaseSchema,
-                  primaryDrugConceptIdList,
-                  secondaryDrugConceptIdList,
-                  excludingDrugConceptIdList,
-                  targetCohortId,
-                  createCsv = FALSE,
-                  resultsSaveInFile = FALSE,
-                  regimenName = 'Unknown',
-                  colorInHistogram = 'FF8200',
-                  regimenConceptId = regimenConceptId, 
-                  maxCores = 1
-){
-  if(length(primaryDrugConceptIdList) !=1 ) stop ("The length of primary Drug Concept Id list should be 1.")
+# parameter setting from json
+#connectionDetails,
+#cohortDatabaseSchema,
+#cdmDatabaseSchema,
+#vocabularyDatabaseSchema = cdmDatabaseSchema,
+#oncologyDatabaseSchema = cdmDatabaseSchema,
+#cohortTable = "cohort",
+#targetCohortId = targetCohortId,
+#targetRegimenConceptIds = targetRegimenConceptIds
+#targetCohortId = ,
+#oracleTempTable = NULL,
+#returnData = T,
+#insertOncologyDatabase=F,
+#customEpisodeTableName = c("EPISODE"),
+#customEpisodeEventTableName = c("EPISODE_EVENT"),
+#deleteExistingRecordsInTable = F,
+#' @export
+extractTargetRegimen<-function(parameters,
+                               connectionDetails,
+                               cohortTable,
+                               cdmDatabaseSchema,
+                               cohortDatabaseSchema,
+                               targetCohortId,
+                               maxCores
+)
+{   
+ 
+  if (class(parameters)!="regimenLists") stop ("regimenLists should be of type regimenLists")
   
-  # All drug list calling
-  connection <- DatabaseConnector::connect(connectionDetails)
+  regimenConceptId<-parameters$regimenConceptId
+  regimenName<-parameters$regimenName
+  includeDescendant<-parameters$includeDescendant
+  outofCohortPeriod<-parameters$outofCohortPeriod
+  drugInspectionDate<-parameters$drugInspectionDate
+  gapDateBetweenCycle<-parameters$gapDateBetweenCycle
+  gapDateAfter<-parameters$gapDateAfter
+  gapDateBefore<-parameters$gapDateBefore
+  primaryConceptIdList<-parameters$primaryConceptIdList
+  secondaryConceptIdList<-parameters$secondaryConceptIdList
+  excludingConceptIdList<-parameters$excludingConceptIdList
   
-  primaryDrugExposure <- DrugListinCohort(connection,
-                                          connectionDetails = connectionDetails,
-                                          cohortTable = cohortTable,
-                                          includeDescendant=includeDescendant,
-                                          outofCohortPeriod = outofCohortPeriod,
-                                          cdmDatabaseSchema = cdmDatabaseSchema,
-                                          cohortDatabaseSchema=cohortDatabaseSchema,
-                                          drugList= primaryDrugConceptIdList,
-                                          targetCohortId=targetCohortId)
-  primaryDrugExposure<-primaryDrugExposure[[1]]
-  colnames(primaryDrugExposure) <- SqlRender::snakeCaseToCamelCase(colnames(primaryDrugExposure))
-
+  # Exposure concept calling
+  ##primary
+  primaryConceptRecords <- DrugExposureInCohort(connectionDetails,
+                                                cohortTable = cohortTable,
+                                                includeDescendant = includeDescendant,
+                                                outofCohortPeriod = outofCohortPeriod,
+                                                cdmDatabaseSchema = cdmDatabaseSchema,
+                                                cohortDatabaseSchema = cohortDatabaseSchema,
+                                                targetConceptIds = primaryConceptIdList,
+                                                targetCohortId = targetCohortId)
+  
   ParallelLogger::logInfo("Primary Drug Exposure records are loaded")
   
-  secondaryDrugExposure <- DrugListinCohort(connection,
-                                            connectionDetails = connectionDetails,
-                                            cohortTable = cohortTable,
-                                            includeDescendant=includeDescendant,
-                                            outofCohortPeriod = outofCohortPeriod,
-                                            cdmDatabaseSchema = cdmDatabaseSchema,
-                                            cohortDatabaseSchema=cohortDatabaseSchema,
-                                            drugList= secondaryDrugConceptIdList,
-                                            targetCohortId=targetCohortId)
+  ##secondary
+  cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
+  secondaryConceptRecords <- ParallelLogger::clusterApply(cluster,secondaryConceptIdList,DrugExposureInCohort,
+                                                          connectionDetails,
+                                                          cohortTable,
+                                                          includeDescendant = TRUE,
+                                                          outofCohortPeriod = TRUE,
+                                                          cdmDatabaseSchema,
+                                                          cohortDatabaseSchema,
+                                                          targetCohortId)
+  ParallelLogger::stopCluster(cluster)
+  
   ParallelLogger::logInfo("Secondary Drug Exposure records are loaded")
   
-  excludingDrugExposure <- DrugListinCohort(connection,
-                                            connectionDetails = connectionDetails,
-                                            cohortTable = cohortTable,
-                                            includeDescendant=includeDescendant,
-                                            outofCohortPeriod = outofCohortPeriod,
-                                            cdmDatabaseSchema = cdmDatabaseSchema,
-                                            cohortDatabaseSchema=cohortDatabaseSchema,
-                                            drugList= excludingDrugConceptIdList,
-                                            targetCohortId=targetCohortId)
+  ##excluding
+  excludingConceptRecords <-  DrugExposureInCohort(connectionDetails,
+                                                   cohortTable = cohortTable,
+                                                   includeDescendant = includeDescendant,
+                                                   outofCohortPeriod = outofCohortPeriod,
+                                                   cdmDatabaseSchema = cdmDatabaseSchema,
+                                                   cohortDatabaseSchema = cohortDatabaseSchema,
+                                                   targetConceptIds = excludingConceptIdList,
+                                                   targetCohortId = targetCohortId)
   ParallelLogger::logInfo("Excluding Drug Exposure records are loaded")
   
-  DatabaseConnector::disconnect(connection)
   
   # drug & cycle condition check (It will take some time)
-  cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
-  data <- ParallelLogger::clusterApply(cluster, unique(primaryDrugExposure$subjectId), gapDateExamination,
-                                       primaryDrugExposure,
-                                       secondaryDrugExposure,
-                                       excludingDrugExposure,
-                                       drugInspectionDate,
-                                       secondaryDrugConceptIdList,
-                                       excludingDrugConceptIdList,
-                                       gapDateBetweenCycle,
-                                       gapDateBefore,
-                                       gapDateAfter)
   
-  ParallelLogger::logInfo("condition check finish")
+  data<-lapply(unique(primaryConceptRecords$subjectId),function(x){try(gapDateExamination(x,
+                                                                    primaryConceptRecords=primaryConceptRecords,
+                                                                    secondaryConceptRecords=secondaryConceptRecords,
+                                                                    excludingConceptRecords=excludingConceptRecords,
+                                                                    drugInspectionDate=drugInspectionDate,
+                                                                    secondaryConceptIdList=secondaryConceptIdList,
+                                                                    excludingConceptIdList=excludingConceptIdList,
+                                                                    gapDateBetweenCycle=gapDateBetweenCycle,
+                                                                    gapDateBefore=gapDateBefore,
+                                                                    gapDateAfter=gapDateAfter))})
   
+         
+#  cluster <- ParallelLogger::makeCluster(numberOfThreads = maxCores)
+#  data <- ParallelLogger::clusterApply(cluster, unique(primaryConceptRecords$subjectId), gapDateExamination,
+#                                     primaryConceptRecords=primaryConceptRecords,
+#                                      secondaryConceptRecords=secondaryConceptRecords,
+#                                     excludingConceptRecords=excludingConceptRecords,
+#                                     drugInspectionDate=drugInspectionDate,
+#                                     secondaryDrugConceptIdList=secondaryDrugConceptIdList,
+#                                     excludingDrugConceptIdList=excludingDrugConceptIdList,
+#                                     gapDateBetweenCycle=gapDateBetweenCycle,
+#                                     gapDateBefore=gapDateBefore,
+#                                     gapDateAfter=gapDateAfter)
+#  ParallelLogger::stopCluster(cluster)
+  ParallelLogger::logInfo("extraction finish")
+  data <- na.omit(data.table::rbindlist(data))
+  data<-recordsInEpisodeTableForm(data,regimenConceptId)
+  return(data)
+}
+#' @export
+recordsInEpisodeTableForm<- function(regimenRecords,regimenConceptId){
 
-  # Generate total cycle list
-  cycleListInCohort<- na.omit(data.table::rbindlist(data))
-  cycleListInCohort$cycle_start_date<-as.Date(cycleListInCohort$cycle_start_date,origin="1970-01-01")
-  cycleListInCohort$cycle_end_date<-as.Date(cycleListInCohort$cycle_end_date,origin="1970-01-01")
-  cycleListInCohort$episode_type_concept_id <-32545
-  cycleListInCohort$episode_concept_id <-32532
-  cycleListInCohort$episode_parent_id <-1
-  cycleListInCohort$episode_object_concept_id <-32525
-  cycleListInCohort$episode_id <-1
-  cycleListInCohort$episode_source_value <-1
-  cycleListInCohort$episode_source_value <-NA
-  cycleListInCohort$episode_source_concept_id <-regimenConceptId
-  names(cycleListInCohort) <- c('person_id',
+  regimenRecords$CYCLE_START_DATE<-as.Date(regimenRecords$CYCLE_START_DATE,origin="1970-01-01")
+  regimenRecords$CYCLE_END_DATE<-as.Date(regimenRecords$CYCLE_END_DATE,origin="1970-01-01")
+  regimenRecords$episode_type_concept_id <-32545
+  regimenRecords$episode_concept_id <-32532
+  regimenRecords$episode_parent_id <-NA
+  regimenRecords$episode_object_concept_id <-32525
+  regimenRecords$episode_id <-1
+  regimenRecords$episode_source_value <-NA
+  regimenRecords$episode_source_concept_id <-regimenConceptId
+  
+  names(regimenRecords) <- c('person_id',
                                 'episode_start_datetime',
                                 'episode_number',
                                 'episode_end_datetime',
@@ -145,70 +168,30 @@ execute<-function(connectionDetails,
                                 'episode_id',
                                 'episode_source_value',
                                 'episode_source_concept_id')
-  cycleList <- data.frame(cycleListInCohort)
-  cycleListInCohort <- cycleList[,c(9,1,6,2,4,7,3,8,5,10,11)]
-  
-  # Generate csv file
-  if(createCsv){
-    if(file.exists('result')){
-      fileName <- paste0('./result/cycleExtraction_',regimenName,'_',targetCohortId,'.csv')
-      if(!file.exists(fileName)){
-        write.csv(cycleListInCohort,file = fileName, row.names = FALSE )}else{
-          file.remove(fileName)
-          write.csv(cycleListInCohort,file = fileName, row.names = FALSE )}
-    }else{
-      dir.create("result")
-      fileName <- paste0('./result/cycleExtraction_',regimenName,'_',targetCohortId,'.csv')
-      write.csv(cycleListInCohort,file = fileName, row.names = FALSE )
-    }
-  }
-  
-  # select max cycle number in the same treatment line in each person
-  aggregateCycle<-aggregate(cycleListInCohort$episode_number,by = list(cycleListInCohort$person_id), max)
-  colnames(aggregateCycle) <- c('person_id','Cycle_num')
-  
-  
-  # Total count
-  totalCount<-length(unique(aggregateCycle$person_id))
-  
-  # Count the number of patients in the value of each cycle number
-  countEachcycle<-as.data.frame(aggregateCycle %>% group_by(Cycle_num) %>% summarise(n = n()))
-  countEachcycle$'%'<-round(prop.table(table(aggregateCycle$Cycle_num))*100, digits = 1)
-  sum<- sum(countEachcycle$n)
-  sumName<- paste0('N','(','total=',sum,')')
-  names(countEachcycle) <- c('Treatment cycle',sumName,'%')
-  
-  if(resultsSaveInFile){
-    if(file.exists('result')){
-      distributionFileName <- paste0('./result/distribution_',regimenName,'_',targetCohortId,'.csv')
-      if(!file.exists(distributionFileName)){
-        write.csv(countEachcycle,file = distributionFileName, row.names = FALSE )}else{
-          file.remove(distributionFileName)
-          write.csv(countEachcycle,file = distributionFileName, row.names = FALSE )}
-    }else{
-      dir.create("result")
-      fileName <- paste0('./result/distribution_',regimenName,'_',targetCohortId,'.csv')
-      write.csv(countEachcycle,file = distributionFileName, row.names = FALSE )
-    }}
-  
-  # Histogram for maximum repeated cycle number distribution
-  histogramColor <- paste0('#',colorInHistogram)
-  histogram <- ggplot2::ggplot(aggregateCycle, aes(x=Cycle_num)) + geom_histogram(fill = histogramColor ,alpha = 0.8,binwidth = 1) + theme_bw() + labs(x="Treatment cycle", y="Number of patients") 
-  histogram <- histogram + ggtitle("Histogram of treated cycle length") + theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 15)) + scale_x_continuous(breaks=seq(1:max(countEachcycle$`Treatment cycle`)))
-  histogram <- plotly::ggplotly(histogram)
-  
-  if(resultsSaveInFile){
-    if(file.exists('result')){
-      histogramFileName <- paste0('./result/histogram_',regimenName,'_',targetCohortId,'.jpg')
-      if(!file.exists(histogramFileName)){
-        ggsave(histogramFileName, dpi = 500) }else{
-          file.remove(histogramFileName)
-          ggsave(histogramFileName, dpi = 500) }
-    }else{
-      dir.create("result")
-      fileName <- paste0('./result/histogram_',regimenName,'_',targetCohortId,'.jpg')
-      ggsave(histogramFileName, dpi = 500)
-    }}
-  return(list(countEachcycle = countEachcycle,histogram = histogram,totalCount = totalCount))
-  
+  cycleList <- data.frame(regimenRecords)
+  regimenRecords <- cycleList[,c(9,1,6,2,4,7,3,8,5,10,11)]
+  return(regimenRecords)
 }
+#' @export
+generateEpisodeTable <- function(targetRegimenConceptIds,
+                                 connectionDetails,
+                                 cohortTable,
+                                 cdmDatabaseSchema,
+                                 cohortDatabaseSchema,
+                                 targetCohortId,
+                                 maxCores){
+  
+parameters <- parameterSetting(targetRegimenConceptIds=targetRegimenConceptIds)
+ParallelLogger::logInfo("parameter loaded")
+
+regimenEpisodeRecords <- lapply(1:length(parameters),function(i){extractTargetRegimen(parameters =parameters[[i]],
+                                     connectionDetails=connectionDetails,
+                                     cohortTable=cohortTable,
+                                     cdmDatabaseSchema=cdmDatabaseSchema,
+                                     cohortDatabaseSchema=cohortDatabaseSchema,
+                                     targetCohortId=targetCohortId,
+                                     maxCores=maxCores)})
+
+episodeTable <- data.table::rbindlist(regimenEpisodeRecords)
+
+return(episodeTable)}

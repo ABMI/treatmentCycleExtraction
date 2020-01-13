@@ -2,8 +2,7 @@ SELECT distinct subject_id, drug.drug_concept_id, CAST(DRUG_EXPOSURE_START_DATET
 ,drug.drug_exposure_id
 FROM @result_database_schema.@cohort_table AS cohort
 JOIN 
-(select * from @cdm_database_schema.DRUG_EXPOSURE where person_Id in 
-(select subject_id from @result_database_schema.@cohort_table where cohort_definition_id in (@target_cohort_Id))) AS drug
+@cdm_database_schema.drug_exposure AS drug
 ON cohort.subject_id = drug.person_id
 and cohort_definition_id IN (@target_cohort_Id)
 {@out_of_cohort_period}?{}:

@@ -1,32 +1,38 @@
 #' DrugExposureInCohort
 #'
-#' This function allows you to extract drug exposure records of target cohort
+#' This function allows you to extract drug exposure records of target regimen in cohort
+#' @param targetConceptIds
 #' @param connectionDetails
 #' @param cohortTable
 #' @param includeDescendant
 #' @param outofCohortPeriod
 #' @param cohortDatabaseSchema
-#' @param targetConceptIds
-#' @paramtargetCohortId
+#' @param targetCohortId
 #' @keywords drug list
 #' @return list form drug exposure data list
-#' @export DrugListinCohort
+#' @export 
 #' @examples
-#' DrugListinCohort(connectionDetails,connection,cohortTable,includeDescendant,outofCohortPeriod,cohortDatabaseSchema,drugList,targetCohortId)
+#' DrugListinCohort(targetConceptIds,
+#' connectionDetails,
+#' cohortTable,
+#' includeDescendant,
+#' outofCohortPeriod,
+#' cdmDatabaseSchema,
+#' cohortDatabaseSchema,
+#' targetCohortId)
 
 # DrugExposureInCohort
 
-DrugExposureInCohort <- function(connection,
+DrugExposureInCohort <- function(targetConceptIds,
                                  connectionDetails,
                                  cohortTable,
                                  includeDescendant = TRUE,
                                  outofCohortPeriod = TRUE,
                                  cdmDatabaseSchema,
                                  cohortDatabaseSchema,
-                                 targetConceptIds,
                                  targetCohortId){
   pathToSql <- system.file("sql/sql_server", "DrugExposureInCohort.sql", package = "treatmentCycleExtraction")
-  
+  connection <- DatabaseConnector::connect(connectionDetails)
   sql <- SqlRender::readSql(pathToSql)
   sql <- SqlRender::render(sql,
                            cdm_database_schema = cdmDatabaseSchema,
@@ -38,28 +44,7 @@ DrugExposureInCohort <- function(connection,
                            target_cohort_Id = targetCohortId)
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   result <- DatabaseConnector::querySql(connection, sql)
-  
-  return(result)
-}
-# Get list of DrugExposureInCohort
-DrugListinCohort <- function(connection,
-                             connectionDetails,
-                             cohortTable,
-                             includeDescendant,
-                             outofCohortPeriod,
-                             cdmDatabaseSchema,
-                             vocaDatabaseSchema,
-                             cohortDatabaseSchema,
-                             drugList,
-                             targetCohortId){
-  result<-lapply(drugList,function(targetConceptIds){DrugExposureInCohort(connection,
-                                                                          connectionDetails,
-                                                                          cohortTable,
-                                                                          includeDescendant,
-                                                                          outofCohortPeriod,
-                                                                          cdmDatabaseSchema,
-                                                                          cohortDatabaseSchema,
-                                                                          targetConceptIds,
-                                                                          targetCohortId)})
+  colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
+  DatabaseConnector::disconnect(connection)
   return(result)
 }
