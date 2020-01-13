@@ -4,7 +4,10 @@
 \alias{gapDateExamination}
 \title{gapDateExamination}
 \usage{
-gapDateExamination(subjectId)
+gapDateExamination(targetSubjectId, primaryConceptRecords,
+  secondaryConceptRecords, excludingConceptRecords, drugInspectionDate,
+  secondaryConceptIdList, excludingConceptIdList, gapDateBetweenCycle,
+  gapDateBefore, gapDateAfter)
 }
 \arguments{
 \item{subjectId}{: targeting subject_id in target cohort}
@@ -16,7 +19,7 @@ cycle result list of single subject in cohort
 check cycle interval in the range of setting
 }
 \examples{
-gapDateExamination(subjectId = 11111111)
+gapDateExamination(targetSubjectIdsubjectId = 11111111)
 }
 \keyword{date}
 \keyword{gap}

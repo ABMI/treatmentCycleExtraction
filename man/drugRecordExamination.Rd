@@ -4,10 +4,12 @@
 \alias{drugRecordExamination}
 \title{drugRecordExamination}
 \usage{
-drugRecordExamination(subjectId)
+drugRecordExamination(targetSubjectId, primaryConceptRecords,
+  secondaryConceptRecords, excludingConceptRecords, drugInspectionDate,
+  secondaryConceptIdList, excludingConceptIdList)
 }
 \arguments{
-\item{subjectId}{: targeting subject_id in target cohort}
+\item{subjectId}{: targeting subjectId in target cohort}
 }
 \value{
 drug condition passed index dates list

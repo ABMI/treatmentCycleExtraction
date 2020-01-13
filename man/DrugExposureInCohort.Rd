@@ -4,18 +4,25 @@
 \alias{DrugExposureInCohort}
 \title{DrugExposureInCohort}
 \usage{
-DrugExposureInCohort(connectionDetails, connection, cohortTable,
+DrugExposureInCohort(targetConceptIds, connectionDetails, cohortTable,
   includeDescendant = TRUE, outofCohortPeriod = TRUE,
-  cohortDatabaseSchema, targetConceptIds, targetCohortId)
+  cdmDatabaseSchema, cohortDatabaseSchema, targetCohortId)
 }
 \value{
 list form drug exposure data list
 }
 \description{
-This function allows you to extract drug exposure records of target cohort
+This function allows you to extract drug exposure records of target regimen in cohort
 }
 \examples{
-DrugListinCohort(connectionDetails,connection,cohortTable,includeDescendant,outofCohortPeriod,cohortDatabaseSchema,drugList,targetCohortId)
+DrugListinCohort(targetConceptIds,
+connectionDetails,
+cohortTable,
+includeDescendant,
+outofCohortPeriod,
+cdmDatabaseSchema,
+cohortDatabaseSchema,
+targetCohortId)
 }
 \keyword{drug}
 \keyword{list}

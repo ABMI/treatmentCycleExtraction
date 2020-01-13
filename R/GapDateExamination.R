@@ -7,89 +7,91 @@
 #' @export
 #' @import dplyr
 #' @import data.table
-#' @import drugRecordExamination
 #' @examples
 #' gapDateExamination(targetSubjectIdsubjectId = 11111111)
 # gapDateExamination
 
 gapDateExamination<-function(targetSubjectId,
-                             primaryDrugExposure,
-                             secondaryDrugExposure,
-                             excludingDrugExposure,
+                             primaryConceptRecords,
+                             secondaryConceptRecords,
+                             excludingConceptRecords,
                              drugInspectionDate,
-                             secondaryDrugConceptIdList,
-                             excludingDrugConceptIdList,
+                             secondaryConceptIdList,
+                             excludingConceptIdList,
                              gapDateBetweenCycle,
                              gapDateBefore,
                              gapDateAfter){
-  allDrugPassed<-drugRecordExamination(targetSubjectId,
-                                       primaryDrugExposure,
-                                       secondaryDrugExposure,
-                                       excludingDrugExposure,
-                                       drugInspectionDate,
-                                       secondaryDrugConceptIdList,
-                                       excludingDrugConceptIdList)
-  if(!is.null(allDrugPassed)){
-    drugExamPassedStartDate<-allDrugPassed$drugExamPassedStartDate
-    drugExamPassedDate<-as.data.frame(drugExamPassedStartDate)
-    drugExamPassedDate$lagdate <- data.table::shift(drugExamPassedDate$drugExamPassedStartDate,fill = drugExamPassedDate$drugExamPassedStartDate[1])
-    drugExamPassedDate$datediff <-drugExamPassedDate$drugExamPassedStartDate-drugExamPassedDate$lagdate
-    drugExamPassedDate$datediff[1] <- 'first'
-    drugExamPassedStartDate<-subset(drugExamPassedDate,datediff >= gapDateBetweenCycle-gapDateBefore|datediff == 'first')$drugExamPassedStartDate
-    drugExamPassedDate<-as.data.frame(drugExamPassedStartDate)
-    ## Generate first date list of cycle. From very first record of date list, until next cycle date cannot be found.
+  
+  drugPassed<-drugRecordExamination(targetSubjectId=targetSubjectId,
+                                    primaryConceptRecords=primaryConceptRecords,
+                                    secondaryConceptRecords=secondaryConceptRecords,
+                                    excludingConceptRecords=excludingConceptRecords,
+                                    drugInspectionDate=drugInspectionDate,
+                                    secondaryConceptIdList=secondaryConceptIdList,
+                                    excludingConceptIdList=excludingConceptIdList)
+  if (!nrow(drugPassed)==0){
+  
+  drugConditionPassedStartDate<-drugPassed$drugConditionPassedStartDate
+  drugConditionPassedDate<-as.data.frame(drugConditionPassedStartDate)
+  
+  drugConditionPassedDate$lagdate <- data.table::shift(drugConditionPassedDate$drugConditionPassedStartDate,fill = drugConditionPassedDate$drugConditionPassedStartDate[1])
+  
+  drugConditionPassedDate$datediff <-drugConditionPassedDate$drugConditionPassedStartDate-drugConditionPassedDate$lagdate
+  drugConditionPassedDate$datediff[1] <- 'first'
+  drugConditionPassedStartDate<-subset(drugConditionPassedDate,datediff >= gapDateBetweenCycle-gapDateBefore|datediff == 'first')$drugConditionPassedStartDate
+  drugConditionPassedDate<-as.data.frame(drugConditionPassedStartDate)
+  ## Generate first date list of cycle. From very first record of date list, until next cycle date cannot be found.
+  
+  gapDatePassedDate <- list()
+  gapDatePassedDate[[1]]<-drugConditionPassedDate[1,]
+  
+  x=1
+  repeat{
     
-    gapDatePassedDate <- list()
-    gapDatePassedDate[[1]]<-drugExamPassedDate[1,]
-    
-    x=1
+    i=1
     repeat{
       
-      i=1
-      repeat{
-        
-        minimumGapVariationDate <- gapDatePassedDate[[x]][i]+gapDateBetweenCycle-gapDateBefore
-        maximumGapVariationDate <- gapDatePassedDate[[x]][i]+gapDateBetweenCycle+gapDateAfter
-        
-        gapDatePassedDate[[x]][i+1] <- dplyr::filter(drugExamPassedDate,between(drugExamPassedDate$`drugExamPassedStartDate`,minimumGapVariationDate,maximumGapVariationDate))[1,]
-        
-        if(is.na(gapDatePassedDate[[x]][i+1]))
-        {gapDatePassedDate[[x+1]]<-subset(drugExamPassedDate,!drugExamPassedDate$`drugExamPassedStartDate` %in% unlist(gapDatePassedDate))[1,]}
-        
-        if(is.na(gapDatePassedDate[[x]][i+1])) break 
-        i = i+1
-      }
+      minimumGapVariationDate <- gapDatePassedDate[[x]][i]+gapDateBetweenCycle-gapDateBefore
+      maximumGapVariationDate <- gapDatePassedDate[[x]][i]+gapDateBetweenCycle+gapDateAfter
       
-      if(is.na(gapDatePassedDate[[x+1]])) break
-      x = x+1}
-    
-    gapDatePassedDate[[length(gapDatePassedDate)]] <- NULL
-    
-    ## Generate result of cycle extraction
-    
-    
-    subjectCycleList<-lapply(1:length(gapDatePassedDate),function(i){
-      cycle_start_date <- gapDatePassedDate[[i]]
-      SUBJECT_ID <-c(targetSubjectId)
-      cycle_num <- c(seq_along(cycle_start_date))
-      cycle <- data.frame(SUBJECT_ID,cycle_start_date,cycle_num)
-      cycle <- dplyr::left_join(cycle,allDrugPassed, by =c("cycle_start_date" = "drugExamPassedStartDate"))
-      names(cycle) <- c('SUBJECT_ID','cycle_start_date','cycle_num','cycle_end_date')
+      gapDatePassedDate[[x]][i+1] <- dplyr::filter(drugConditionPassedDate,between(drugConditionPassedDate$`drugConditionPassedStartDate`,minimumGapVariationDate,maximumGapVariationDate))[1,]
       
-      return(cycle)
+      if(is.na(gapDatePassedDate[[x]][i+1]))
+      {gapDatePassedDate[[x+1]]<-subset(drugConditionPassedDate,!drugConditionPassedDate$`drugConditionPassedStartDate` %in% unlist(gapDatePassedDate))[1,]}
+      
+      if(is.na(gapDatePassedDate[[x]][i+1])) break 
+      i = i+1
     }
-    )
-    subjectCycleList<- data.table::rbindlist(subjectCycleList)
     
-    return(subjectCycleList)
-  } else {
-    cycle_start_date<-NA
-    cycle_end_date <- NA
-    cycle_num <-NA
-    SUBJECT_ID <-NA
-    subjectCycleList <- data.frame(SUBJECT_ID,cycle_start_date,cycle_num,cycle_end_date)
+    if(is.na(gapDatePassedDate[[x+1]])) break
+    x = x+1}
+  
+  gapDatePassedDate[[length(gapDatePassedDate)]] <- NULL
+  
+  ## Generate result of cycle extraction
 
-    return(subjectCycleList)
+  subjectCycleList<-lapply(1:length(gapDatePassedDate),function(i){
+    cycleStartDate <- gapDatePassedDate[[i]]
+    subjectId <-c(targetSubjectId)
+    cycleNum <- c(seq_along(cycleStartDate))
+    cycle <- data.frame(subjectId,cycleStartDate,cycleNum)
+    
+    drugPassed<-drugPassed %>% group_by(drugConditionPassedStartDate) %>% slice(which.max(drugConditionPassedEndDate))
+    cycle <- dplyr::left_join(cycle,drugPassed, by =c("cycleStartDate" = "drugConditionPassedStartDate"))
+    
+    names(cycle) <- c('SUBJECT_ID','CYCLE_START_DATE','CYCLE_NUM','CYCLE_END_DATE')
+    
+    return(cycle)
   }
-}
+  )
+  
+  subjectCycleList<- data.table::rbindlist(subjectCycleList)}else{
+    SUBJECT_ID<-c(NA)
+    CYCLE_START_DATE <- c(NA)
+    CYCLE_NUM<- c(NA)
+    CYCLE_END_DATE <- c(NA)
+    subjectCycleList <- data.frame(SUBJECT_ID,CYCLE_START_DATE,CYCLE_NUM,CYCLE_END_DATE)
 
+  }
+  
+  return(subjectCycleList)}
