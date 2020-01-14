@@ -16,6 +16,7 @@ Dependencies
 * dplyr
 * ggplot2
 * data.table
+* rjson
 
 Getting started
 ============
