@@ -22,7 +22,6 @@
 #' targetCohortId)
 
 # DrugExposureInCohort
-
 DrugExposureInCohort <- function(targetConceptIds,
                                  connectionDetails,
                                  cohortTable,
