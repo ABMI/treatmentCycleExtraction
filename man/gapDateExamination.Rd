@@ -7,7 +7,7 @@
 gapDateExamination(targetSubjectId, primaryConceptRecords,
   secondaryConceptRecords, excludingConceptRecords, drugInspectionDate,
   secondaryConceptIdList, excludingConceptIdList, gapDateBetweenCycle,
-  gapDateBefore, gapDateAfter)
+  gapDateBefore, gapDateAfter, regimenConceptId)
 }
 \arguments{
 \item{subjectId}{: targeting subject_id in target cohort}
