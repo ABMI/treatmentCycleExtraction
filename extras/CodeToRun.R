@@ -20,25 +20,8 @@ cohortTable <-'cohort'
 cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
 vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
 
-## 1. Manual drug condition
-primaryDrugConceptIdList <- list(955632)
-names(primaryDrugConceptIdList) <- c('Fluorouracil')
-
-secondaryDrugConceptIdList <- list(c(1318011),c(1388796,19111620))
-names(secondaryDrugConceptIdList) <- c('Oxaliplatin','leucovorin')
-
-excludingDrugConceptIdList <- list(1397141)
-names(excludingDrugConceptIdList) <- c('Bevacizumab')
-
-regimenName <- 'FOLFOX'
-regimenConceptId <- 35806596
-
-## 2. regimen setting when you do not want to ingredient manually
-regimenConceptId <- 35806596
-regimenSetting(connectionDetails,
-               connection,
-               vocaDatabaseSchema,
-               regimenConceptId = regimenConceptId)
+targetRegimenConceptIds <- c(35806407,
+                             35806419)
 
 ## Create the cohort for treatmentCycleExtraction
 
@@ -57,48 +40,42 @@ createCohort(createCohortTable = FALSE,
              targetCohortId = targetCohortId
 )
 
-## Include descendants of drugs in list or not:
-includeDescendant <- TRUE
-
-## Drug records could be out of cohort period or not :
-outofCohortPeriod <- FALSE
-
-## Period of observing secondary drug from primary drug used date :
-drugInspectionDate <- 7
-
-## Each cycle start date should be apart as gap date, and gap date can be in range of +- date as gap date variation :
-gapDateBetweenCycle <-20
-gapDateAfter<-15  #+
-gapDateBefore<-10  #-
 
 ## The number of cores in use
 maxCores <- 4
 
-## Generate all cycle records list of cohort as csv file in working directory 
-## It will be treatment episode table later version...
-createCsv <- TRUE
-resultsSaveInFile <- TRUE ## save histogram and distribution table
-colorInHistogram <- 'FF8200'
 
-
+data<-generateEpisodeTable(targetRegimenConceptIds,
+                           connectionDetails,
+                           cohortTable,
+                           cdmDatabaseSchema,
+                           cohortDatabaseSchema,
+                           targetCohortId,
+                           maxCores)
 
 ## Execute_____________________________________________##
 
-execute(connectionDetails,
-        connection,
-        cohortTable = cohortTable,
-        includeDescendant = includeDescendant,
-        outofCohortPeriod = outofCohortPeriod,
-        cohortDatabaseSchema = cohortDatabaseSchema,
-        primaryDrugConceptIdList = primaryDrugConceptIdList,
-        secondaryDrugConceptIdList = secondaryDrugConceptIdList,
-        excludingDrugConceptIdList= excludingDrugConceptIdList,
-        targetCohortId = targetCohortId,
-        createCsv = createCsv,
-        resultsSaveInFile = resultsSaveInFile,
-        regimenName = regimenName,
-        colorInHistogram = colorInHistogram,
-        regimenConceptId =regimenConceptId)
+#extractRegimens(connectionDetails,
+ #               regimenLists,
+                # includeDescendant = includeDescendant,
+                # outofCohortPeriod = outofCohortPeriod,
+#                cohortDatabaseSchema = cohortDatabaseSchema,
+ #               cohortTable = cohortTable,
+  #              targetCohortId = targetCohortId,
+   #             cdmDatabaseSchema = cdmDatabaseSchema,
+    #            oraleTempTable = NULL,
+     #           returnData = T,
+      #          insertOncologyDatabase=F,
+       #         oncologyDatabaseSchema = oncologyDatabaseSchema,
+        #        customEpisodeTableName = c("EPISODE"),
+         #       customEpisodeEventTableName = c("EPISODE_EVENT"),
+          #      deleteExistingRecordsInTable = F,
+                # primaryDrugConceptIdList = primaryDrugConceptIdList,
+                # secondaryDrugConceptIdList = secondaryDrugConceptIdList,
+                # excludingDrugConceptIdList= excludingDrugConceptIdList,
+                # regimenName = regimenName,
+                # regimenConceptId =regimenConceptId
+#)
 
 ##_____________________________________________________##
 #path <- location of result episode_table 

@@ -42,7 +42,7 @@ drugRecordExamination<-function(targetSubjectId,
     drugConditionPassedEndDate <- c()
     eventItem <- c()
     ###
-
+    
     for(x in 1:nrow(indexDateList)){
       
       inResult<-list()
