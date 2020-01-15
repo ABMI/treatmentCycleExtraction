@@ -2,6 +2,7 @@
 
 export(DrugExposureInCohort)
 export(createCohort)
+export(distributionTable)
 export(drugRecordExamination)
 export(extractTargetRegimen)
 export(gapDateExamination)

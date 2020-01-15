@@ -20,7 +20,8 @@ gapDateExamination<-function(targetSubjectId,
                              excludingConceptIdList,
                              gapDateBetweenCycle,
                              gapDateBefore,
-                             gapDateAfter){
+                             gapDateAfter,
+                             regimenConceptId){
   
   drugPassed<-drugRecordExamination(targetSubjectId=targetSubjectId,
                                     primaryConceptRecords=primaryConceptRecords,
@@ -74,12 +75,13 @@ gapDateExamination<-function(targetSubjectId,
     cycleStartDate <- gapDatePassedDate[[i]]
     subjectId <-c(targetSubjectId)
     cycleNum <- c(seq_along(cycleStartDate))
-    cycle <- data.frame(subjectId,cycleStartDate,cycleNum)
+    REGIMEN_CONCEPT_ID <- regimenConceptId
+    cycle <- data.frame(subjectId,cycleStartDate,cycleNum,regimenConceptId)
     
     drugPassed<-drugPassed %>% group_by(drugConditionPassedStartDate) %>% slice(which.max(drugConditionPassedEndDate))
     cycle <- dplyr::left_join(cycle,drugPassed, by =c("cycleStartDate" = "drugConditionPassedStartDate"))
     
-    names(cycle) <- c('SUBJECT_ID','CYCLE_START_DATE','CYCLE_NUM','CYCLE_END_DATE')
+    names(cycle) <- c('SUBJECT_ID','CYCLE_START_DATE','CYCLE_NUM','REGIMEN_CONCEPT_ID','CYCLE_END_DATE','EVENT_ITEM')
     
     return(cycle)
   }
@@ -90,8 +92,9 @@ gapDateExamination<-function(targetSubjectId,
     CYCLE_START_DATE <- c(NA)
     CYCLE_NUM<- c(NA)
     CYCLE_END_DATE <- c(NA)
-    subjectCycleList <- data.frame(SUBJECT_ID,CYCLE_START_DATE,CYCLE_NUM,CYCLE_END_DATE)
-
+    EVENT_ITEM <- c(NA)
+    REGIMEN_CONCEPT_ID <- regimenConceptId
+    subjectCycleList <- data.frame(SUBJECT_ID,CYCLE_START_DATE,CYCLE_NUM,REGIMEN_CONCEPT_ID,CYCLE_END_DATE,EVENT_ITEM)
   }
   
   return(subjectCycleList)}

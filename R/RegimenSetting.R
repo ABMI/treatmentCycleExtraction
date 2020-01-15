@@ -27,7 +27,7 @@ parameterSetting <- function(jsonName= "regimenDrugSettingJsonForm.json",targetR
 
 #' @export
 readJson <- function(jsonName = "regimenDrugSettingJsonForm.json"){
-  pathToRjson <-system.file("JSON", jsonName, package = "treatmentCycleExtraction")
+  pathToRjson <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   data <-rjson::fromJSON(file = pathToRjson)
   
   class(data) = "regimenLists"
