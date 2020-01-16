@@ -57,5 +57,6 @@ parameterSetting <- function(jsonName= "regimenDrugSettingJsonForm.json",targetR
   regimenLists <-readJson(jsonName = jsonName)
   if(is.null(targetRegimenConceptIds)){targetRegimenConceptIds <- sapply(regimenLists,`[`,"conceptId")}
   listFormRegimen<-lapply(targetRegimenConceptIds,regimenListParameterSetting,regimenLists=regimenLists)
+  class(listFormRegimen)= "regimenLists"
   return(listFormRegimen)
 }

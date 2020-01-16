@@ -21,12 +21,12 @@ generateEpisodeTable <- function(targetRegimenConceptIds,
                                  cohortTable,
                                  cdmDatabaseSchema,
                                  cohortDatabaseSchema,
+                                 oncologyDatabaseSchema,
                                  targetCohortId,
                                  maxCores){
   
   parameters <- parameterSetting(targetRegimenConceptIds=targetRegimenConceptIds)
   ParallelLogger::logInfo("parameter loaded")
-  
   targetRegimenRecordsList <- lapply(1:length(parameters),function(i){
     
     extractTargetRegimen(parameters =parameters[[i]],
@@ -39,7 +39,7 @@ generateEpisodeTable <- function(targetRegimenConceptIds,
     })
   
   targetRegimenRecords <- data.table::rbindlist(targetRegimenRecordsList)
-  maxEpisodeId <- findEpisodeIdLength()
+  maxEpisodeId <- findEpisodeIdLength(connectionDetails,oncologyDatabaseSchema,)
   if(nrow(targetRegimenRecords) == 0){episodeAndEventTable <-list()}else{
   episodeAndEventTable<-recordsInEpisodeTableForm(targetRegimenRecords,maxEpisodeId)}
   return(episodeAndEventTable)}
