@@ -4,7 +4,7 @@
 \alias{recordsInEpisodeTableForm}
 \title{regimen records to episode table}
 \usage{
-recordsInEpisodeTableForm(regimenRecords)
+recordsInEpisodeTableForm(regimenRecords, maxEpisodeId)
 }
 \arguments{
 \item{regimenRecords}{regimen records}
