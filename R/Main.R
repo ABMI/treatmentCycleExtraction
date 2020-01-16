@@ -39,7 +39,8 @@ generateEpisodeTable <- function(targetRegimenConceptIds,
     })
   
   targetRegimenRecords <- data.table::rbindlist(targetRegimenRecordsList)
+  maxEpisodeId <- findEpisodeIdLength()
   if(nrow(targetRegimenRecords) == 0){episodeAndEventTable <-list()}else{
-  episodeAndEventTable<-recordsInEpisodeTableForm(targetRegimenRecords)}
+  episodeAndEventTable<-recordsInEpisodeTableForm(targetRegimenRecords,maxEpisodeId)}
   return(episodeAndEventTable)}
 

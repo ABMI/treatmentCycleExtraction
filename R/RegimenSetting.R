@@ -7,75 +7,55 @@
 #' @param indexDrugConceptId
 #' @keywords regimenSetting
 #' @return drugList
-#' @export
 #' @import SqlRender
 #' @import DatabaseConnector
 #' @examples
-#' regimenSetting(connectionDetails = connectionDetails,
-#' connection = connection,
-#' vocaDatabaseSchema = connectionDetails$schema,
-#' regimenConceptId = regimenConceptId)
-#' @export
-parameterSetting <- function(jsonName= "regimenDrugSettingJsonForm.json",targetRegimenConceptIds){
-  regimenLists <-readJson(jsonName = jsonName)
-  filteredRegimenLists<-regimenListFilter(regimenLists=regimenLists,targetRegimenConceptIds)
-  parameterList <- targetRegimenParameterSetting(filteredRegimenLists,regimenLists, targetRegimenConceptIds)
-  for(i in 1:length(parameterList)){class(parameterList[[i]])= "regimenLists"}
-  
-  return(parameterList)
-}
+#' parameterSetting(targetRegimenConceptIds=targetRegimenConceptIds)
 
 #' @export
 readJson <- function(jsonName = "regimenDrugSettingJsonForm.json"){
   pathToRjson <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
-  data <-rjson::fromJSON(file = pathToRjson)
+  regimenLists <-rjson::fromJSON(file = pathToRjson)
   
-  class(data) = "regimenLists"
-  return(data)
+  class(regimenLists) = "regimenLists"
+  return(regimenLists)
+
 }
 
 #' @export
-regimenListFilter <- function(regimenLists, targetRegimenConceptIds){
+regimenListParameterSetting <- function(regimenLists, targetRegimenConceptId){
   
   if (class(regimenLists)!="regimenLists") stop ("regimenLists should be of type regimenLists")
-  filteredRegimenLists<- regimenLists[unlist(lapply(regimenLists,`[`,"conceptId"))  %in% targetRegimenConceptIds]
-  
-  class(filteredRegimenLists) = "regimenLists"
-  return(filteredRegimenLists)
+  filteredRegimenLists<- regimenLists[unlist(lapply(regimenLists,`[`,"conceptId"))  %in% targetRegimenConceptId][[1]]
+      
+  index <- !(names(filteredRegimenLists) %in% c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod'))
+    
+    roleIndex<-lapply(filteredRegimenLists[index],`[`,"role")
+    
+    primaryConceptIdList <- sapply(filteredRegimenLists[index][unlist(roleIndex) == "primary"],`[`,"conceptId")
+    secondaryConceptIdList <- sapply(filteredRegimenLists[index][unlist(roleIndex) == "secondary"],`[`,"conceptId")
+    excludingConceptIdList <- sapply(filteredRegimenLists[index][unlist(roleIndex) == "excluded"],`[`,"conceptId")
+    
+    regimenConceptId <- filteredRegimenLists$conceptId
+    regimenName <- filteredRegimenLists$regimenName
+    includeDescendant <- filteredRegimenLists$includeDescendant
+    outofCohortPeriod <- filteredRegimenLists$outofCohortPeriod
+    drugInspectionDate <- filteredRegimenLists$drugInspectionDate
+    gapDateBetweenCycle <- filteredRegimenLists$gapDateBetweenCycle
+    gapDateAfter <- filteredRegimenLists$gapDateAfter  
+    gapDateBefore <- filteredRegimenLists$gapDateBefore
+    
+    parameters <- list(regimenConceptId,regimenName,includeDescendant,outofCohortPeriod,drugInspectionDate,gapDateBetweenCycle,gapDateAfter,gapDateBefore,primaryConceptIdList,secondaryConceptIdList,excludingConceptIdList)
+    
+    names(parameters) <- c('regimenConceptId','regimenName','includeDescendant','outofCohortPeriod','drugInspectionDate','gapDateBetweenCycle','gapDateAfter','gapDateBefore','primaryConceptIdList','secondaryConceptIdList','excludingConceptIdList')
+    class(parameters)= "regimenLists"
+    return(parameters)
 }
 
-#' @export
-targetRegimenParameterSetting <- function(filteredRegimenLists,regimenLists, targetRegimenConceptIds){
-  
-  filteredRegimenLists <- regimenListFilter(regimenLists=regimenLists, targetRegimenConceptIds=targetRegimenConceptIds)
-  
-  i <- 1:length(filteredRegimenLists)
-  
-  parameters<-lapply(i,function(i){
-  singleR<- filteredRegimenLists[[i]]
-  regimenConceptId <- singleR$conceptId
-  regimenName <- singleR$regimenName
-  includeDescendant <- singleR$includeDescendant
-  outofCohortPeriod <- singleR$outofCohortPeriod
-  drugInspectionDate <- singleR$drugInspectionDate
-  gapDateBetweenCycle <- singleR$gapDateBetweenCycle
-  gapDateAfter<- singleR$gapDateAfter  #+
-  gapDateBefore<- singleR$gapDateBefore
-  primaryConceptIdList <- singleR[[12]]$conceptId
-  
-  secondaryConceptIdList <- list()
-  excludingConceptIdList <- list()
-  
-  if(length(singleR)>12){
-    for(i in 13:length(singleR)){
-      if(singleR[[i]]$role == "secondary"){secondaryConceptIdList<-append(secondaryConceptIdList,singleR[[i]]$conceptId)}else
-      {excludingConceptIdList<-append(excludingConceptIdList,singleR[[i]]$conceptId)}}
-  }
-  
-  parameters <- list(regimenConceptId,regimenName,includeDescendant,outofCohortPeriod,drugInspectionDate,gapDateBetweenCycle
-                     ,gapDateAfter,gapDateBefore,primaryConceptIdList,secondaryConceptIdList,excludingConceptIdList)
-  names(parameters) <- c('regimenConceptId','regimenName','includeDescendant','outofCohortPeriod','drugInspectionDate','gapDateBetweenCycle','gapDateAfter','gapDateBefore','primaryConceptIdList','secondaryConceptIdList','excludingConceptIdList')
-  return(parameters)}
-)
-  return(parameters)
+#' @export parameterSetting
+parameterSetting <- function(jsonName= "regimenDrugSettingJsonForm.json",targetRegimenConceptIds){
+  regimenLists <-readJson(jsonName = jsonName)
+  if(is.null(targetRegimenConceptIds)){targetRegimenConceptIds <- sapply(regimenLists,`[`,"conceptId")}
+  listFormRegimen<-lapply(targetRegimenConceptIds,regimenListParameterSetting,regimenLists=regimenLists)
+  return(listFormRegimen)
 }

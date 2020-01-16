@@ -42,12 +42,12 @@ drugRecordExamination<-function(targetSubjectId,
     drugConditionPassedEndDate <- c()
     eventItem <- c()
     ###
-    
+
     for(x in 1:nrow(indexDateList)){
       
-      inResult<-list()
-      endDateList <-list()
-      
+      inResult <- list()
+      endDateList <- list()
+
       ##secondary concept
       if(length(secondaryConceptIdList)!=0){
         for(i in 1:length(secondaryConceptIdList)){
@@ -65,18 +65,20 @@ drugRecordExamination<-function(targetSubjectId,
         
         outResult <- excludingConceptInPeriod[1,3]
         
-      }else{outResult<-NA}
+      }else{secondaryConceptInPeriod<-NULL
+        outResult<-NA}
       ##
       if(sum(is.na(inResult))==0 & sum(!is.na(outResult))==0){
         drugConditionPassedStartDate[x]<- indexDateList[x,3]
         targetCycleItem <- paste0(secondaryConceptInPeriod$drugExposureId,collapse = '_')
+        targetCycleItem <- paste0(indexDateList[x,5],collapse = '_')
         eventItem[x] <- targetCycleItem
         if(!is.null(drugConditionPassedStartDate)){
-          endDate<-as.Date(max(do.call(rbind,endDateList),na.rm =TRUE),origin="1970-01-01")
-          drugConditionPassedEndDate[x]<- max(c(indexDateList[x,3],endDate),na.rm =TRUE)}
+          drugConditionPassedEndDate[x]<- max(c(indexDateList[x,3],unlist(endDateList)),na.rm =TRUE)
+          }
         
       }
-    }
+      }
     ###
     if(!is.null(drugConditionPassedStartDate)){
       drugConditionPassedDate <- data.frame(drugConditionPassedStartDate,drugConditionPassedEndDate,eventItem)
