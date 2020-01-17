@@ -33,12 +33,12 @@ generateEpisodeTable <- function(targetRegimenConceptIds,
                          cohortDatabaseSchema=cohortDatabaseSchema,
                          targetCohortId=targetCohortId,
                          maxCores=maxCores)
-    })
+  })
   
   targetRegimenRecords <- data.table::rbindlist(targetRegimenRecordsList)
   
   if(nrow(targetRegimenRecords) == 0){episodeAndEventTable <-list()}else{
-  episodeAndEventTable<-recordsInEpisodeTableForm(targetRegimenRecords)}
+    episodeAndEventTable<-recordsInEpisodeTableForm(targetRegimenRecords)}
   return(episodeAndEventTable)}
 
 #' @export
@@ -47,17 +47,20 @@ insertEpisodeToDatabase <- function(connectionDetails,oncologyDatabaseSchema,epi
   
   episodeRecordsTable <- episodeAndEpisodeEvent[[1]]
   episodeEventRecordsTable <- episodeAndEpisodeEvent[[2]]
-  if(createEpisodeAndEventTable == FALSE){lastEpisodeId<-findEpisodeIdlength(connectionDetails,
-                                                                             oncologyDatabaseSchema,
-                                                                             episodeTable)
-  lastEpisodeId<-lastEpisodeId[[1]]
-  episodeRecordsTable$episode_id <- episodeRecordsTable$episode_id+lastEpisodeId
-  episodeEventRecordsTable$episode_id <- episodeEventRecordsTable$episode_id+lastEpisodeId}else{}
+  if(createEpisodeAndEventTable == FALSE){lastEpisodeId<-findEpisodeIdlength(connectionDetails=connectionDetails,
+                                                                             oncologyDatabaseSchema=oncologyDatabaseSchema,
+                                                                             episodeTable=episodeTable)
+  
+  lastEpisodeId<-as.numeric(lastEpisodeId[,1])
+  
+  episodeRecordsTable$episode_id <- as.numeric(episodeRecordsTable$episode_id)+lastEpisodeId
+  episodeEventRecordsTable$episode_id <- as.numeric(episodeEventRecordsTable$episode_id)+lastEpisodeId
+  }else{}
   
   
-  DatabaseConnector::insertTable(conn, episodeTable, episodeRecordsTable, createTable = createEpisodeAndEventTable, progressBar = TRUE )
+  DatabaseConnector::insertTable(conn, episodeTable, episodeRecordsTable,dropTableIfExists = FALSE, createTable = createEpisodeAndEventTable, progressBar = TRUE )
   
-  DatabaseConnector::insertTable(conn, episodeEventTable, episodeEventRecordsTable, createTable = createEpisodeAndEventTable, progressBar = TRUE )
+  DatabaseConnector::insertTable(conn, episodeEventTable, episodeEventRecordsTable,dropTableIfExists = FALSE, createTable = createEpisodeAndEventTable, progressBar = TRUE )
   
   DatabaseConnector::disconnect(conn)
 } 

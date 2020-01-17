@@ -65,6 +65,6 @@ recordsInEpisodeTableForm<- function(regimenRecords){
   EventTable$cost_id <- NA
   
   episodeEventTable <- EventTable[,c(1,3,4,5,2,6,7,8,9,10,11)]
-
+  
   return(list(episodeTable,episodeEventTable))
 }
