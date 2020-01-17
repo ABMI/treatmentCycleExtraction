@@ -113,7 +113,8 @@ extractTargetRegimen<-function(parameters,
                                                                                           gapDateBetweenCycle=gapDateBetweenCycle,
                                                                                           gapDateBefore=gapDateBefore,
                                                                                           gapDateAfter=gapDateAfter,
-                                                                                          regimenConceptId=regimenConceptId))})
+                                                                                          regimenConceptId=regimenConceptId)
+                                                                                                                        )})
   
   ParallelLogger::logInfo("extraction finish")
   data <- na.omit(data.table::rbindlist(data))

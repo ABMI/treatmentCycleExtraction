@@ -8,7 +8,6 @@
 #' @import dplyr
 #' @examples
 #' drugRecordExamination(subjectId = 11111111)
-
 # drugRecordExamination
 drugRecordExamination<-function(targetSubjectId,
                                 primaryConceptRecords,
@@ -18,7 +17,6 @@ drugRecordExamination<-function(targetSubjectId,
                                 secondaryConceptIdList,
                                 excludingConceptIdList
 ){
-  
   ## Dispense date of primary drug is index date
   ## Generate index date list in one person
   if (!nrow(primaryConceptRecords)==0){
@@ -42,12 +40,12 @@ drugRecordExamination<-function(targetSubjectId,
     drugConditionPassedEndDate <- c()
     eventItem <- c()
     ###
-
+    
     for(x in 1:nrow(indexDateList)){
       
       inResult <- list()
       endDateList <- list()
-
+      
       ##secondary concept
       if(length(secondaryConceptIdList)!=0){
         for(i in 1:length(secondaryConceptIdList)){
@@ -58,7 +56,7 @@ drugRecordExamination<-function(targetSubjectId,
           if (length(secondaryConceptInPeriod$drugExposureEndDate)!=0){
             endDateList<-append(endDateList,list(unique(max(secondaryConceptInPeriod$drugExposureEndDate,na.rm =TRUE))))}
         }
-      }
+      }else{secondaryConceptInPeriod <- NULL}
       ##excluding concept
       if(length(excludingConceptIdList)!=0){
         excludingConceptInPeriod <- dplyr::filter(excludingConceptRecordsOneSubject,between(drugExposureStartDate,indexDateList[x,3],indexDateList[x,3]+drugInspectionDate))
@@ -66,19 +64,20 @@ drugRecordExamination<-function(targetSubjectId,
         outResult <- excludingConceptInPeriod[1,3]
         
       }else{secondaryConceptInPeriod<-NULL
-        outResult<-NA}
+      outResult<-NA}
       ##
       if(sum(is.na(inResult))==0 & sum(!is.na(outResult))==0){
         drugConditionPassedStartDate[x]<- indexDateList[x,3]
-        targetCycleItem <- paste0(secondaryConceptInPeriod$drugExposureId,collapse = '_')
-        targetCycleItem <- paste0(indexDateList[x,5],collapse = '_')
+        targetCycleItemSec <- paste0(secondaryConceptInPeriod$drugExposureId,collapse = '_')
+        targetCycleItemPri <- paste0(indexDateList[x,5],collapse = '_')
+        targetCycleItem<- paste0(c(targetCycleItemSec,targetCycleItemPri),collapse = '_')
         eventItem[x] <- targetCycleItem
         if(!is.null(drugConditionPassedStartDate)){
           drugConditionPassedEndDate[x]<- max(c(indexDateList[x,3],unlist(endDateList)),na.rm =TRUE)
-          }
+        }
         
       }
-      }
+    }
     ###
     if(!is.null(drugConditionPassedStartDate)){
       drugConditionPassedDate <- data.frame(drugConditionPassedStartDate,drugConditionPassedEndDate,eventItem)
@@ -86,7 +85,8 @@ drugRecordExamination<-function(targetSubjectId,
       drugConditionPassedDate <- drugConditionPassedDate[c(order(drugConditionPassedDate$drugConditionPassedStartDate)),]
       drugConditionPassedDate <- unique(drugConditionPassedDate)
       rownames(drugConditionPassedDate) <- NULL
-      }else{drugConditionPassedDate <- data.frame()}
+    }else{drugConditionPassedDate <- data.frame()}
   }else{drugConditionPassedDate<-data.frame()}
+  
   return(drugConditionPassedDate)
 }
