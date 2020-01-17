@@ -5,7 +5,7 @@
 #' @export 
 #' @examples recordsInEpisodeTableForm(regimenRecords)
 
-recordsInEpisodeTableForm<- function(regimenRecords,maxEpisodeId){
+recordsInEpisodeTableForm<- function(regimenRecords){
   
   regimenRecords$CYCLE_START_DATE<-as.Date(regimenRecords$CYCLE_START_DATE,origin="1970-01-01")
   regimenRecords$CYCLE_END_DATE<-as.Date(regimenRecords$CYCLE_END_DATE,origin="1970-01-01")
@@ -13,7 +13,7 @@ recordsInEpisodeTableForm<- function(regimenRecords,maxEpisodeId){
   regimenRecords$episode_concept_id <-32532
   regimenRecords$episode_parent_id <-NA
   regimenRecords$episode_object_concept_id <-32525
-  regimenRecords$episode_id <- (maxEpisodeId+1):seq(nrow(regimenRecords))
+  regimenRecords$episode_id <- seq(nrow(regimenRecords))
   regimenRecords$episode_source_value <-NA
   
   
@@ -65,6 +65,6 @@ recordsInEpisodeTableForm<- function(regimenRecords,maxEpisodeId){
   EventTable$cost_id <- NA
   
   episodeEventTable <- EventTable[,c(1,3,4,5,2,6,7,8,9,10,11)]
-  
+
   return(list(episodeTable,episodeEventTable))
 }
