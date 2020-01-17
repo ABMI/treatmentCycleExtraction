@@ -2,7 +2,8 @@
 % Please edit documentation in R/DrugExposureInCohort.R
 \name{DrugExposureInCohort}
 \alias{DrugExposureInCohort}
-\title{DrugExposureInCohort}
+\title{DrugExposureInCohort
+This function allows you to extract drug exposure records of target regimen in cohort}
 \usage{
 DrugExposureInCohort(targetConceptIds, connectionDetails, cohortTable,
   includeDescendant = TRUE, outofCohortPeriod = TRUE,
@@ -12,6 +13,7 @@ DrugExposureInCohort(targetConceptIds, connectionDetails, cohortTable,
 list form drug exposure data list
 }
 \description{
+DrugExposureInCohort
 This function allows you to extract drug exposure records of target regimen in cohort
 }
 \examples{

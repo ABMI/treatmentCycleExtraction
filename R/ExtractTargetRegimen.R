@@ -1,43 +1,34 @@
-#' generate regimen records for target regimen
-#' @param targetRegimenConceptIds regimen concept ids 
+# Copyright 2020 Observational Health Data Sciences and Informatics
+#
+# This file is part of treatmentCycleExtraction
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#' ExtractTargetRegimen
+#' Generate regimen records for target regimen.
+#' @param parameters
 #' @param connectionDetails An object of type \code{connectionDetails} as created using the
 #'                          \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
 #'                          DatabaseConnector package.
 #' @param cohortTable The name of the table that will be created in the work database schema.
 #'                    This table will hold the exposure and outcome cohorts used in this
 #'                    study.
-#' @param cdmDatabaseSchema 
+#' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
 #' @param targetCohortId
 #' @param maxCores Number of cores using in clusterApply
 #' @keywords target regimen, records
-#' @return records of the target single regimen 
-#' @export extractTargetRegimen
+#' @return The records of the target single regimen 
 #' @examples
-#' generateEpisodeTable(targetRegimenConceptIds,
-#'                     connectionDetails,
-#'                     cohortTable,
-#'                     cdmDatabaseSchema,
-#'                     cohortDatabaseSchema,
-#'                     targetCohortId,
-#'                     maxCores)
-
-# parameter setting from json
-#connectionDetails,
-#cohortDatabaseSchema,
-#cdmDatabaseSchema,
-#vocabularyDatabaseSchema = cdmDatabaseSchema,
-#oncologyDatabaseSchema = cdmDatabaseSchema,
-#cohortTable = "cohort",
-#targetCohortId = targetCohortId,
-#targetRegimenConceptIds = targetRegimenConceptIds
-#targetCohortId = ,
-#oracleTempTable = NULL,
-#returnData = T,
-#insertOncologyDatabase=F,
-#customEpisodeTableName = c("EPISODE"),
-#customEpisodeEventTableName = c("EPISODE_EVENT"),
-#deleteExistingRecordsInTable = F,
 #' @export
 extractTargetRegimen<-function(parameters,
                                connectionDetails,

@@ -2,7 +2,8 @@
 % Please edit documentation in R/ExtractTargetRegimen.R
 \name{extractTargetRegimen}
 \alias{extractTargetRegimen}
-\title{generate regimen records for target regimen}
+\title{ExtractTargetRegimen
+Generate regimen records for target regimen.}
 \usage{
 extractTargetRegimen(parameters, connectionDetails, cohortTable,
   cdmDatabaseSchema, cohortDatabaseSchema, targetCohortId, maxCores)
@@ -16,26 +17,14 @@ DatabaseConnector package.}
 This table will hold the exposure and outcome cohorts used in this
 study.}
 
-\item{cdmDatabaseSchema}{}
-
 \item{maxCores}{Number of cores using in clusterApply}
-
-\item{targetRegimenConceptIds}{regimen concept ids}
 }
 \value{
-records of the target single regimen
+The records of the target single regimen
 }
 \description{
-generate regimen records for target regimen
-}
-\examples{
-generateEpisodeTable(targetRegimenConceptIds,
-                    connectionDetails,
-                    cohortTable,
-                    cdmDatabaseSchema,
-                    cohortDatabaseSchema,
-                    targetCohortId,
-                    maxCores)
+ExtractTargetRegimen
+Generate regimen records for target regimen.
 }
 \keyword{records}
 \keyword{regimen,}

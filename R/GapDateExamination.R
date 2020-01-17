@@ -1,16 +1,37 @@
-#' gapDateExamination
-#'
+# Copyright 2020 Observational Health Data Sciences and Informatics
+#
+# This file is part of treatmentCycleExtraction
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#' GapDateExamination
 #' check cycle interval in the range of setting
-#' @param subjectId : targeting subject_id in target cohort
+#' @param targetSubjectId
+#' @param primaryConceptRecords
+#' @param secondaryConceptRecords
+#' @param excludingConceptRecords
+#' @param drugInspectionDate
+#' @param secondaryConceptIdList
+#' @param excludingConceptIdList
+#' @param gapDateBetweenCycle
+#' @param gapDateBefore
+#' @param gapDateAfter
+#' @param regimenConceptId
 #' @keywords gap date
-#' @return cycle result list of single subject in cohort
+#' @return Cycle list of single subject in cohort
 #' @export
 #' @import dplyr
 #' @import data.table
 #' @examples
-#' gapDateExamination(targetSubjectIdsubjectId = 11111111)
-# gapDateExamination
-
 gapDateExamination<-function(targetSubjectId,
                              primaryConceptRecords,
                              secondaryConceptRecords,

@@ -2,7 +2,8 @@
 % Please edit documentation in R/Main.R
 \name{generateEpisodeTable}
 \alias{generateEpisodeTable}
-\title{generate regimen records for target regimen}
+\title{GenerateEpisodeTable
+Generate regimen records for target regimen in episode table form and insert to database.}
 \usage{
 generateEpisodeTable(targetRegimenConceptIds, connectionDetails,
   cohortTable, cdmDatabaseSchema, cohortDatabaseSchema, targetCohortId,
@@ -27,7 +28,8 @@ study.}
 records of the target single regimen
 }
 \description{
-generate regimen records for target regimen
+GenerateEpisodeTable
+Generate regimen records for target regimen in episode table form and insert to database.
 }
 \keyword{records}
 \keyword{regimen,}
