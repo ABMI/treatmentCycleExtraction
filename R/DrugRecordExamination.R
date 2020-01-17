@@ -63,14 +63,18 @@ drugRecordExamination<-function(targetSubjectId,
         
         outResult <- excludingConceptInPeriod[1,3]
         
-      }else{secondaryConceptInPeriod<-NULL
+      }else{
       outResult<-NA}
       ##
       if(sum(is.na(inResult))==0 & sum(!is.na(outResult))==0){
         drugConditionPassedStartDate[x]<- indexDateList[x,3]
-        targetCycleItemSec <- paste0(secondaryConceptInPeriod$drugExposureId,collapse = '_')
-        targetCycleItemPri <- paste0(indexDateList[x,5],collapse = '_')
-        targetCycleItem<- paste0(c(targetCycleItemSec,targetCycleItemPri),collapse = '_')
+        if(!is.null(secondaryConceptInPeriod)){
+          targetCycleItemSec <- paste0(secondaryConceptInPeriod$drugExposureId,collapse = '_')
+          targetCycleItemPri <- paste0(indexDateList[x,5],collapse = '_')
+          targetCycleItem<- paste0(c(targetCycleItemSec,targetCycleItemPri),collapse = '_')
+        }else
+        {targetCycleItem<- paste0(indexDateList[x,5],collapse = '_')}
+        
         eventItem[x] <- targetCycleItem
         if(!is.null(drugConditionPassedStartDate)){
           drugConditionPassedEndDate[x]<- max(c(indexDateList[x,3],unlist(endDateList)),na.rm =TRUE)

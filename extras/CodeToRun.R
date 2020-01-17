@@ -1,38 +1,9 @@
 
-## Execute_____________________________________________##
-
-#extractRegimens(connectionDetails,
-
-   #            
-    #            oracleTempTable = NULL,
-     #          
-      #         
-       #         oncologyDatabaseSchema = oncologyDatabaseSchema,
-        #        customEpisodeTableName = c("EPISODE"),
-         #       customEpisodeEventTableName = c("EPISODE_EVENT"),
-         
+##__Execute__##
 
 ######################################################################################
-## Details for connecting to the server:
-## Create the cohort for treatmentCycleExtraction
 
-conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661)
-targetCohortId <- 1234
-
-createCohort(createCohortTable = FALSE,
-             connectionDetails = connectionDetails,
-             oracleTempSchema = NULL,
-             cdmDatabaseSchema = cdmDatabaseSchema,
-             cohortDatabaseSchema = cohortDatabaseSchema,
-             vocabularyDatabaseSchema = cdmDatabaseSchema,
-             cohortTable = cohortTable,
-             conceptIdSet = conceptIdSet,
-             includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId
-)
-
-## parameter setting
-
+# Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
                                                                 schema='cdmDatabaseSchema',
@@ -41,22 +12,37 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
 
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'result_v27'
+cohortDatabaseSchema <-'cohortDatabaseSchema'
 cohortTable <-'cohort'
-cdmDatabaseSchema <- 'cdmpv531'
-vocaDatabaseSchema <- 'hkocdm'
-oncologyDatabaseSchema <- 'hkocdm'
-episodeTable <- 'episode_test'
-episodeEventTable <- 'episode_event_test'
-createEpisodeAndEventTable <- TRUE
-
-targetRegimenConceptIds <- c(35803688)
+cdmDatabaseSchema <- 'cdmDatabaseSchema'
+vocaDatabaseSchema <- 'vocaDatabaseSchema'
+oncologyDatabaseSchema <- 'oncologyDatabaseSchema'
+episodeTable <- 'episode_table_name'
+episodeEventTable <- 'episode_event_table_name'
+createEpisodeAndEventTable <- FALSE
+# Target regimen concept ids, blank = all
+targetRegimenConceptIds <- c(35806596)
 
 targetCohortId <- 272
 
-## The number of cores in use
+# The number of cores in use
 maxCores <- 4
 
+## Create the cohort for treatmentCycleExtraction
+conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661) #colorectal cancer
+createCohortTable <- FALSE
+createCohort(createCohortTable = FALSE,
+             connectionDetails = connectionDetails,
+             oracleTempSchema = NULL,
+             cdmDatabaseSchema = cdmDatabaseSchema,
+             cohortDatabaseSchema = cohortDatabaseSchema,
+             vocabularyDatabaseSchema = vocaDatabaseSchema,
+             cohortTable = cohortTable,
+             conceptIdSet = conceptIdSet,
+             includeConceptIdSetDescendant = TRUE,
+             targetCohortId = targetCohortId
+)
+## Episode table and episode Event generation
 episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
                                              connectionDetails,
                                              cohortTable,
@@ -64,6 +50,8 @@ episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
                                              cohortDatabaseSchema,
                                              targetCohortId,
                                              maxCores)
+
+## Insert episode table to database
 
 insertEpisodeToDatabase(connectionDetails,oncologyDatabaseSchema,episodeTable,episodeEventTable,createEpisodeAndEventTable,episodeAndEpisodeEvent)
 
