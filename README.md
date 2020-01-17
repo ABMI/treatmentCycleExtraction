@@ -39,7 +39,8 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
                                                                 schema='cdmDatabaseSchema',
                                                                 user=NULL,
-                                                                password=NULL)
+                                                                password=NULL,
+                                                                port='port')
 # The name of the database schema where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
 cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
