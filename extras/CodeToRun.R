@@ -12,23 +12,26 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
 
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'cohortDatabaseSchema'
+cohortDatabaseSchema <-'scratch.dbo'
+cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
+vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
+oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
+
+# The name of the table where the study-specific cohorts will be instantiated:
 cohortTable <-'cohort'
-cdmDatabaseSchema <- 'cdmDatabaseSchema'
-vocaDatabaseSchema <- 'vocaDatabaseSchema'
-oncologyDatabaseSchema <- 'oncologyDatabaseSchema'
 episodeTable <- 'episode_table_name'
 episodeEventTable <- 'episode_event_table_name'
 createEpisodeAndEventTable <- FALSE
-# Target regimen concept ids, blank = all
-targetRegimenConceptIds <- c(35806596)
+
+# Target regimen concept ids(blank = all):
+targetRegimenConceptIds <- c(35806596,35804761)
 
 targetCohortId <- 272
 
-# The number of cores in use
+# The number of cores in use:
 maxCores <- 4
 
-## Create the cohort for treatmentCycleExtraction
+## Create the cohort for treatmentCycleExtraction:
 conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661) #colorectal cancer
 
 createCohort(createCohortTable = FALSE,
@@ -42,7 +45,7 @@ createCohort(createCohortTable = FALSE,
              includeConceptIdSetDescendant = TRUE,
              targetCohortId = targetCohortId
 )
-## Episode table and episode Event generation
+## Episode table and episode Event generation:
 episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
                                              connectionDetails,
                                              cohortTable,
@@ -51,7 +54,11 @@ episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
                                              targetCohortId,
                                              maxCores)
 
-## Insert episode table to database
-
-insertEpisodeToDatabase(connectionDetails,oncologyDatabaseSchema,episodeTable,episodeEventTable,createEpisodeAndEventTable,episodeAndEpisodeEvent)
+## Insert episode table to database:
+insertEpisodeToDatabase(connectionDetails,
+                        oncologyDatabaseSchema,
+                        episodeTable,
+                        episodeEventTable,
+                        createEpisodeAndEventTable,
+                        episodeAndEpisodeEvent)
 
