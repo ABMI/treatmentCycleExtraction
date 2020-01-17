@@ -41,7 +41,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 user=NULL,
                                                                 password=NULL)
 # The name of the database schema where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'scratch.dbo'
+cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
 cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
 vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
 oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
