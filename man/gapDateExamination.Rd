@@ -2,24 +2,20 @@
 % Please edit documentation in R/GapDateExamination.R
 \name{gapDateExamination}
 \alias{gapDateExamination}
-\title{gapDateExamination}
+\title{GapDateExamination
+check cycle interval in the range of setting}
 \usage{
 gapDateExamination(targetSubjectId, primaryConceptRecords,
   secondaryConceptRecords, excludingConceptRecords, drugInspectionDate,
   secondaryConceptIdList, excludingConceptIdList, gapDateBetweenCycle,
   gapDateBefore, gapDateAfter, regimenConceptId)
 }
-\arguments{
-\item{subjectId}{: targeting subject_id in target cohort}
-}
 \value{
-cycle result list of single subject in cohort
+Cycle list of single subject in cohort
 }
 \description{
+GapDateExamination
 check cycle interval in the range of setting
-}
-\examples{
-gapDateExamination(targetSubjectIdsubjectId = 11111111)
 }
 \keyword{date}
 \keyword{gap}

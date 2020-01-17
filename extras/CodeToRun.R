@@ -30,7 +30,7 @@ maxCores <- 4
 
 ## Create the cohort for treatmentCycleExtraction
 conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661) #colorectal cancer
-createCohortTable <- FALSE
+
 createCohort(createCohortTable = FALSE,
              connectionDetails = connectionDetails,
              oracleTempSchema = NULL,

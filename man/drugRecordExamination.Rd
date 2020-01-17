@@ -2,19 +2,18 @@
 % Please edit documentation in R/DrugRecordExamination.R
 \name{drugRecordExamination}
 \alias{drugRecordExamination}
-\title{drugRecordExamination}
+\title{DrugRecordExamination
+check each index dates of single subject whether drug conditions are satisfied or not.}
 \usage{
 drugRecordExamination(targetSubjectId, primaryConceptRecords,
   secondaryConceptRecords, excludingConceptRecords, drugInspectionDate,
   secondaryConceptIdList, excludingConceptIdList)
 }
-\arguments{
-\item{subjectId}{: targeting subjectId in target cohort}
-}
 \value{
-drug condition passed index dates list
+drug condition passed dates list
 }
 \description{
+DrugRecordExamination
 check each index dates of single subject whether drug conditions are satisfied or not.
 }
 \examples{
