@@ -42,9 +42,9 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 password=NULL)
 # The name of the database schema where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <-'scratch.dbo'
-cdmDatabaseSchema <- 'cdm_database_schema'
+cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
 vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
-oncologyDatabaseSchema <- 'oncology_database_schema'
+oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
 
 # The name of the table where the study-specific cohorts will be instantiated:
 cohortTable <-'cohort'
@@ -52,8 +52,11 @@ episodeTable <- 'episode_table_name'
 episodeEventTable <- 'episode_event_table_name'
 createEpisodeAndEventTable <- FALSE
 
-# Target regimen concept ids(blank = all)
+# Target regimen concept ids(blank = all):
 targetRegimenConceptIds <- c(35806596,35804761)
+
+# Target cohort definition id:
+targetCohortId <- 272
 
 # The number of cores in use
 maxCores <- 4
