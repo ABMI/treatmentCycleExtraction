@@ -1,18 +1,17 @@
 
-##__Execute__##
-
-######################################################################################
+##__Code_to_run__##
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 server=Sys.getenv("PDW_SERVER"),
                                                                 schema='cdmDatabaseSchema',
                                                                 user=NULL,
-                                                                password=NULL)
+                                                                password=NULL,
+                                                                port='port')
 
 
 # The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'scratch.dbo'
+cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
 cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
 vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
 oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
@@ -24,7 +23,7 @@ episodeEventTable <- 'episode_event_table_name'
 createEpisodeAndEventTable <- FALSE
 
 # Target regimen concept ids(blank = all):
-targetRegimenConceptIds <- c(35806596,35804761)
+targetRegimenConceptIds <- c(35806596,35804761) #FOLFOX, FOLFIRI
 
 targetCohortId <- 272
 
@@ -32,7 +31,18 @@ targetCohortId <- 272
 maxCores <- 4
 
 ## Create the cohort for treatmentCycleExtraction:
-conceptIdSet <- c(443384,4181344,443381,443390,4180792,4180791,443382,4180790,443391,435754,443383,4089661) #colorectal cancer
+conceptIdSet <- c(443384,
+                  4181344,
+                  443381,
+                  443390,
+                  4180792,
+                  4180791,
+                  443382,
+                  4180790,
+                  443391,
+                  435754,
+                  443383,
+                  4089661) #colorectal cancer
 
 createCohort(createCohortTable = FALSE,
              connectionDetails = connectionDetails,
