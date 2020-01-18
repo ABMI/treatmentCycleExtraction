@@ -20,21 +20,100 @@
 #' @keywords graph,visualization
 #' @return Graph or table for episode table
 #' @examples 
+#' @import dplyr
+#' @import superheat
+#' @import tidyr
+#' @import RColorBrewer
 #' @export
 distributionTable <- function(episodeTable,
-                              episodeSourceConceptId){
-  
-  episode <- episodeTable %>% filter(episode_source_concept_id == episodeSourceConceptId)
-  maxCycleNumberPerPerson<-aggregate(episode$episode_number,by = list(episode$person_id), max)
+                              targetEpisodeConceptId){
+  episode <- episodeTable %>% filter(episodeSourceConceptId == targetEpisodeConceptId)
+  maxCycleNumberPerPerson<-aggregate(episode$episodeNumber,by = list(episode$personId), max)
   colnames(maxCycleNumberPerPerson) <- c('person_id','Cycle_num')
   
   # Total count
-  totalCount<-length(unique(maxCycleNumberPerPerson$person_id))
+  totalCount<-length(unique(maxCycleNumberPerPerson$personId))
   
   # Count the number of patients in the value of each cycle number
   countCycle<-as.data.frame(maxCycleNumberPerPerson %>% group_by(Cycle_num) %>% summarise(n = n()))
   countCycle$'%'<-round(prop.table(table(maxCycleNumberPerPerson$Cycle_num))*100, digits = 1)
   sum<- sum(countCycle$n)
   sumName<- paste0('N','(','total=',sum,')')
-  names(countCycle) <- c('Treatment cycle',sumName,'%')
+  countCycle$conceptName <- unique(episode$conceptName)
+  names(countCycle) <- c('Treatment cycle',sumName,'%','conceptName')
   return(countCycle)}
+
+#' @export 
+episodeTableForVisualization <- function(connectionDetails,
+                                         vocaDatabaseSchema,
+                                         oncologyDatabaseSchema,
+                                         episodeTable){
+  connection <- DatabaseConnector::connect(connectionDetails)
+  sql <- 'select episode.*,concept.concept_name from @oncology_database_schema.@episode_table episode
+  left join @voca_database_schema.concept concept
+  on episode.episode_source_concept_id = concept.concept_id
+  where episode_concept_id in (32532) 
+  '
+  sql <- SqlRender::render(sql,voca_database_schema = vocaDatabaseSchema,
+                           oncology_database_schema = oncologyDatabaseSchema,
+                           episode_table = episodeTable)
+  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
+  result <- DatabaseConnector::querySql(connection, sql)
+  colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
+  DatabaseConnector::disconnect(connection)
+  return(result)
+}
+#' @export 
+regimenHeatmap<-function(episodeTableFromDatabase,visualizationTargetRegimenId,heatmapInRatio = TRUE){
+  if(is.null(visualizationTargetRegimenId)){visualizationTargetRegimenId<-unique(episodeTableFromDatabase$episodeSourceConceptId)}else{}
+  
+  totalDistribution <-data.table::rbindlist(lapply(visualizationTargetRegimenId,function(episodeSourceConceptId){
+    targetRegimenDistributionTable<-distributionTable(episodeTable=episodeTableFromDatabase,
+                                                      targetEpisodeConceptId=episodeSourceConceptId)
+    names(targetRegimenDistributionTable) <- c('cycle','n','ratio','conceptName')
+    return(targetRegimenDistributionTable)}))
+  
+  if(heatmapInRatio){
+    totalDistribution <- as_tibble(totalDistribution) %>% select(cycle, conceptName, ratio)
+    class(totalDistribution$ratio) = "dbl"
+    plotdata <- tidyr::spread(totalDistribution, cycle, ratio)}else{totalDistribution <- as_tibble(totalDistribution) %>% select(cycle, conceptName, n)
+      class(totalDistribution$n) = "dbl"}
+  
+     
+      
+  plotdata <- tidyr::spread(totalDistribution, cycle, n)
+  # 
+  plotdata <- as.data.frame(plotdata)
+  plotdata[is.na(plotdata)] <- 0
+  row.names(plotdata) <- plotdata$conceptName
+  plotdata$conceptName <- NULL
+  sort.order <- order(plotdata$"12")
+  colors <- brewer.pal(9, "Blues")
+  heatmap<-superheat(plotdata,
+                     scale = FALSE,
+                     left.label.text.size=3,
+                     left.label.size = 0.3,
+                     bottom.label.text.size=3,
+                     bottom.label.size = .05,
+                     heat.pal = colors,
+                     heat.pal.values = c(seq(0,0.3,length.out = 8),1),
+                     order.rows = sort.order,
+                     title = "Repeated cycle number in each regimen")
+  return(heatmap)
+}
+#'@export generateHeatmap
+generateHeatmap <- function(connectionDetails,
+                            vocaDatabaseSchema,
+                            oncologyDatabaseSchema,
+                            episodeTable,
+                            visualizationTargetRegimenId = NULL,
+                            heatmapInRatio = TRUE){
+  episodeTableFromDatabase<- episodeTableForVisualization(connectionDetails,
+                                                          vocaDatabaseSchema,
+                                                          oncologyDatabaseSchema,
+                                                          episodeTable)
+  
+  regimenHeatmap(episodeTableFromDatabase,visualizationTargetRegimenId,heatmapInRatio)
+}
+write.csv(episodeTableFromDatabase,file = 'episode.csv', row.names = FALSE)
+getwd()
