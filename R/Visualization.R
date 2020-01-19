@@ -22,6 +22,8 @@
 #' @examples 
 #' @import dplyr
 #' @import superheat
+#' @import ggalluvial
+#' @import ggplot2
 #' @import tidyr
 #' @import RColorBrewer
 #' @export
@@ -121,3 +123,32 @@ generateHeatmap <- function(connectionDetails,
   
   regimenHeatmap(episodeTableFromDatabase,visualizationTargetRegimenId,heatmapInRatio,maximumCycleNumber)
 }
+#'@export sankeyDiagram
+sankeyDiagram<-function(connectionDetails,
+                        vocaDatabaseSchema,
+                        oncologyDatabaseSchema,
+                        episodeTable,
+                        sankeyTargetRegimen = NULL,
+                        regimenChangeNumber = 3){
+  episodeTableFromDatabase<- episodeTableForVisualization(connectionDetails,
+                                                          vocaDatabaseSchema,
+                                                          oncologyDatabaseSchema,
+                                                          episodeTable)
+  if(is.null(sankeyTargetRegimen)){sankeyTargetRegimen<-unique(episodeTableFromDatabase$episodeSourceConceptId)}
+  
+  sankeyData<-episodeTableFromDatabase %>% select(personId,episodeSourceConceptId,conceptName,episodeStartDatetime,episodeNumber) %>% subset(episodeNumber == 1) %>%group_by(personId,episodeStartDatetime) %>% arrange(personId,episodeStartDatetime) %>% subset(episodeSourceConceptId %in% sankeyTargetRegimen) %>% group_by(personId) %>% mutate(lag = lag(conceptName)) %>% subset(is.na(lag) |conceptName !=lag)
+  
+  sankeyDataOverNumber<-sankeyData %>% group_by(personId) %>% summarise(n=n()) %>% subset(n >= regimenChangeNumber)
+  
+  data<-sankeyData %>% subset(personId %in% sankeyDataOverNumber$personId) %>% group_by(personId) %>% mutate(rowNum = 1:n()) %>% select(personId,conceptName,rowNum) %>% subset(rowNum <= regimenChangeNumber)
+  
+  data$conceptName <- as.factor(data$conceptName)
+  sankey<-ggplot(data,
+                 aes(x = rowNum, stratum = conceptName, alluvium = personId,
+                     fill = conceptName, label = conceptName)) +
+    geom_flow(stat = "alluvium", lode.guidance = "frontback",
+              color = "darkgray") +
+    geom_stratum() +
+    theme(legend.position = "bottom") +geom_text(stat = "stratum") +
+    ggtitle("Regimen flow")
+  return(sankey)}

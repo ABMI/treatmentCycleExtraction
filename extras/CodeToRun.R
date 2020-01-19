@@ -72,3 +72,14 @@ insertEpisodeToDatabase(connectionDetails,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
 
+##Sankey diagram:
+sankeyTargetRegimen<-c(35804757,35804776,35804545,35804792,35804770,35804792,35804761,35804767,35804227,35804755,35804769,35804768,35804766,35804245,35803688)
+regimenChangeNumber <- 3
+
+sankeyDiagram(connectionDetails,
+              vocaDatabaseSchema,
+              oncologyDatabaseSchema,
+              episodeTable,
+              sankeyTargetRegimen,
+              regimenChangeNumber)
+
