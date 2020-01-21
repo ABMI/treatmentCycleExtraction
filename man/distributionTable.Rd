@@ -5,7 +5,7 @@
 \title{Visualization
 Visualization tool for episode table.}
 \usage{
-distributionTable(episodeTable, episodeSourceConceptId)
+distributionTable(episodeTable, targetEpisodeConceptId)
 }
 \value{
 Graph or table for episode table
