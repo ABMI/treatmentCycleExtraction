@@ -1,3 +1,4 @@
+Codetorun
 
 ##__Code_to_run__##
 
@@ -73,13 +74,21 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeAndEpisodeEvent)
 
 ##Sankey diagram:
-sankeyTargetRegimen<-c(35804757,35804776,35804545,35804792,35804770,35804792,35804761,35804767,35804227,35804755,35804769,35804768,35804766,35804245,35803688)
+#colorectal
+sankeyTargetRegimen <- c(35804545,35804757,35804227,35804761,35804755,35804776,35804770,35804792)
+surgeryConceptId <-c(4079713)
 regimenChangeNumber <- 3
+regimenMinimumChangeNumber <- 3
+surgeryName <- 'Colectomy'
+gapDatesInTherapy <-14
 
-sankeyDiagram(connectionDetails,
-              vocaDatabaseSchema,
-              oncologyDatabaseSchema,
-              episodeTable,
-              sankeyTargetRegimen,
-              regimenChangeNumber)
-
+sankeyFromEpisode(connectionDetails,
+                  vocaDatabaseSchema,
+                  oncologyDatabaseSchema,
+                  episodeTable,
+                  sankeyTargetRegimen,
+                  surgeryConceptId,
+                  regimenChangeNumber,
+                  regimenMinimumChangeNumber,
+                  surgeryName,
+                  gapDatesInTherapy)
