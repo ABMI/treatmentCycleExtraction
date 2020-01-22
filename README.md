@@ -64,7 +64,7 @@ maxCores <- 4
 ```
 # Then run the following :
 
-Create the target cohort for treatmentCycleExtraction :
+If you do not have cohort records, create the target cohort for treatmentCycleExtraction :
 ```r
 conceptIdSet <- c(443384,
                   4181344,
@@ -78,6 +78,8 @@ conceptIdSet <- c(443384,
                   435754,
                   443383,
                   4089661) #colorectal cancer
+
+targetCohortId <- 272
 
 createCohort(createCohortTable = FALSE,
              connectionDetails = connectionDetails,
