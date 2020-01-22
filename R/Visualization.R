@@ -26,6 +26,7 @@
 #' @import ggplot2
 #' @import tidyr
 #' @import RColorBrewer
+#' @import collapsibleTree
 #' @export
 distributionTable <- function(episodeTable,
                               targetEpisodeConceptId){
@@ -262,3 +263,40 @@ surgeryForSankey <- function(connectionDetails,
   DatabaseConnector::disconnect(connection)
   return(result)
 }
+#' @export parameterTree
+parameterTree<-function(targetRegimen){regimenJson<-readJson()
+targetRegimenParameter<-regimenJson[unlist(lapply(regimenJson,`[`,'conceptId')) %in% targetRegimen][[1]]
+targetRegimenParameterBasic<-targetRegimenParameter[names(targetRegimenParameter)%in%c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod')]
+
+targetRegimenParameterDrug<-targetRegimenParameter[!names(targetRegimenParameter)%in%c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod')]
+
+if(length(targetRegimenParameterBasic$invalidReason)==0){targetRegimenParameterBasic$invalidReason <-NA}
+contents<-names(targetRegimenParameterBasic)
+role<-unlist(targetRegimenParameterBasic)
+parameters <- data.frame(contents,role) %>% subset(contents != 'regimenName')
+regimenName<- data.frame(contents,role) %>% subset(contents == 'regimenName')
+regimenName<-as.character(regimenName$role)
+rownames(parameters) <- NULL
+
+index <- !(names(targetRegimenParameter) %in% c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod'))
+roleIndex<-lapply(targetRegimenParameter[index],`[`,"role")
+primaryDrugList<-targetRegimenParameterDrug[unlist(roleIndex) == "primary"] 
+primaryDrugDataframe<-do.call(rbind.data.frame, primaryDrugList)
+secondaryDrugList<-targetRegimenParameterDrug[unlist(roleIndex) == "secondary"] 
+secondaryDrugDataframe<-do.call(rbind.data.frame, secondaryDrugList)
+excludedDrugList<-targetRegimenParameterDrug[unlist(roleIndex) == "excluded"] 
+excludedDrugDataframe<-do.call(rbind.data.frame, excludedDrugList)
+
+drug<-rbind(primaryDrugDataframe,secondaryDrugDataframe,excludedDrugDataframe)
+drug$contents <- 'drug'         
+Regimen<-merge(drug,parameters,all=TRUE)
+Regimen$regimenName <- regimenName
+tree<-collapsibleTree::collapsibleTree(
+  Regimen,
+  hierarchy = c("regimenName","contents","role","conceptName","conceptId","table"), 
+  fill = c(
+    
+    "Black","seashell",rep("#00798c",length(unique(Regimen$contents))),rep("#d1495b",length(unique(na.omit(Regimen$role)))),rep("#edae49",length(unique(na.omit(Regimen$conceptName)))),rep("#66a182",length(unique(na.omit(Regimen$conceptName)))+length(unique(na.omit(Regimen$conceptName))))),
+  collapsed = FALSE
+)
+return(tree)}
