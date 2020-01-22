@@ -43,7 +43,7 @@ conceptIdSet <- c(443384,
                   443391,
                   435754,
                   443383,
-                  4089661) #colorectal cancer
+                  4089661) #colorectal cancer (condition)
 
 createCohort(createCohortTable = FALSE,
              connectionDetails = connectionDetails,
@@ -80,7 +80,7 @@ surgeryConceptId <-c(4079713)
 regimenChangeNumber <- 3
 regimenMinimumChangeNumber <- 3
 surgeryName <- 'Colectomy'
-gapDatesInTherapy <-14
+gapDatesInTherapy <-10
 
 sankeyFromEpisode(connectionDetails,
                   vocaDatabaseSchema,
@@ -92,3 +92,20 @@ sankeyFromEpisode(connectionDetails,
                   regimenMinimumChangeNumber,
                   surgeryName,
                   gapDatesInTherapy)
+
+##Parameter in tree:
+targetRegimen <- 35804761	
+parameterTree(targetRegimen)
+
+##Repeadted cycle heatmap:
+visualizationTargetRegimenId <- c()
+heatmapInRatio <- TRUE
+maximumCycleNumber <- 20
+generateHeatmap(connectionDetails,
+                vocaDatabaseSchema,
+                oncologyDatabaseSchema,
+                episodeTable,
+                visualizationTargetRegimenId,
+                heatmapInRatio,
+                maximumCycleNumber)
+
