@@ -157,7 +157,7 @@ sankeyFromEpisode<-function(connectionDetails,
   surgeryRecord<-surgeryRecord %>% select(personId,procedureConceptId,surgery,procedureDate,episodeNumber)
   colnames(surgeryRecord) <- c('personId','episodeSourceConceptId','conceptName','episodeStartDatetime','episodeNumber')
   ##
-  sankeyData<-rbind(regimenSankeyData,unique(surgeryRecord))%>% group_by(personId,episodeStartDatetime) %>% arrange(personId,episodeStartDatetime)
+  sankeyData<-rbind(regimenSankeyData,unique(surgeryRecord))%>% group_by(personId,episodeStartDatetime,conceptName) %>% arrange(personId,episodeStartDatetime,conceptName)
   
   ##
   sankeyData<-sankeyData %>% group_by(personId) %>% mutate(lag = lag(conceptName)) %>% subset(is.na(lag) |conceptName !=lag)
@@ -191,6 +191,17 @@ sankeyFromEpisode<-function(connectionDetails,
   
   data<-data %>% subset(personId %in% sankeyDataOverNumber$personId) 
   data<-as.data.frame(data)
+  ##For minimunChangeNumber working 
+  if(regimenMinimumChangeNumber!=regimenChangeNumber){
+  dataUniquePersonId<-data %>% select(personId) %>% unique()
+  rowNumber<-rep(1:regimenChangeNumber,nrow(dataUniquePersonId))
+  dataUniquePersonId<-rep(dataUniquePersonId$personId,regimenChangeNumber)
+  paddingRowNum<-data.frame(dataUniquePersonId) %>% group_by(dataUniquePersonId) %>% arrange(dataUniquePersonId)
+  paddingRowNum<-as.data.frame(paddingRowNum)
+  paddingRowNum$rowNum <-rowNumber
+  colnames(paddingRowNum) <- c('personId','rowNum')
+  data<-merge(data,paddingRowNum,by=c("personId","rowNum"),all=TRUE)}
+  
   
   ##links
   pasteConceptName<-paste(data$rowNum,data$conceptName,sep = '_')

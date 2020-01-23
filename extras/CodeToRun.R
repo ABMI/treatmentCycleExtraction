@@ -1,5 +1,3 @@
-Codetorun
-
 ##__Code_to_run__##
 
 # Details for connecting to the server:
@@ -17,10 +15,12 @@ cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
 vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
 oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
 
+
 # The name of the table where the study-specific cohorts will be instantiated:
 cohortTable <-'cohort'
 episodeTable <- 'episode_table_name'
 episodeEventTable <- 'episode_event_table_name'
+
 createEpisodeAndEventTable <- FALSE
 
 # Target regimen concept ids(blank = all):
@@ -44,6 +44,8 @@ conceptIdSet <- c(443384,
                   435754,
                   443383,
                   4089661) #colorectal cancer (condition)
+
+targetCohortId <- 272
 
 createCohort(createCohortTable = FALSE,
              connectionDetails = connectionDetails,
@@ -73,12 +75,12 @@ insertEpisodeToDatabase(connectionDetails,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
 
-##Sankey diagram:
+##1. Sankey diagram:
 #colorectal
 sankeyTargetRegimen <- c(35804545,35804757,35804227,35804761,35804755,35804776,35804770,35804792)
 surgeryConceptId <-c(4079713)
 regimenChangeNumber <- 3
-regimenMinimumChangeNumber <- 3
+regimenMinimumChangeNumber <- 2
 surgeryName <- 'Colectomy'
 gapDatesInTherapy <-10
 
@@ -93,11 +95,11 @@ sankeyFromEpisode(connectionDetails,
                   surgeryName,
                   gapDatesInTherapy)
 
-##Parameter in tree:
+##2. Parameter in tree:
 targetRegimen <- 35804761	
 parameterTree(targetRegimen)
 
-##Repeadted cycle heatmap:
+##3. Repeadted cycle heatmap:
 visualizationTargetRegimenId <- c()
 heatmapInRatio <- TRUE
 maximumCycleNumber <- 20
