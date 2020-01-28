@@ -74,7 +74,7 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeEventTable,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
-
+#### Visualization ####
 ##1. Sankey diagram:
 #colorectal
 sankeyTargetRegimen <- c(35804545,35804757,35804227,35804761,35804755,35804776,35804770,35804792)
@@ -103,11 +103,13 @@ parameterTree(targetRegimen)
 visualizationTargetRegimenId <- c()
 heatmapInRatio <- TRUE
 maximumCycleNumber <- 20
+colors <- RColorBrewer::brewer.pal(9, "Reds")
 generateHeatmap(connectionDetails,
                 vocaDatabaseSchema,
                 oncologyDatabaseSchema,
                 episodeTable,
                 visualizationTargetRegimenId,
                 heatmapInRatio,
-                maximumCycleNumber)
+                maximumCycleNumber,
+                colors)
 
