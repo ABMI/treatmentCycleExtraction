@@ -103,7 +103,13 @@ gapDateExamination<-function(targetSubjectId,
       cycle <- dplyr::left_join(cycle,drugPassed, by =c("cycleStartDate" = "drugConditionPassedStartDate"))
       
       names(cycle) <- c('SUBJECT_ID','CYCLE_START_DATE','CYCLE_NUM','REGIMEN_CONCEPT_ID','CYCLE_END_DATE','EVENT_ITEM')
-      
+      treatmentLineStartDate<-cycle %>% slice(which.min(CYCLE_START_DATE)) %>% select(CYCLE_START_DATE)
+      treatmentLineEndDate<-cycle %>% slice(which.max(CYCLE_END_DATE)) %>% select(CYCLE_END_DATE)
+      treatmentLineNumberPadding <- 0
+      treatmentLineEventItemPadding <- '1_1'
+      treatmentLine <- data.frame(subjectId,treatmentLineStartDate,treatmentLineNumberPadding,REGIMEN_CONCEPT_ID,treatmentLineEndDate,treatmentLineEventItemPadding)
+      names(treatmentLine) <- c('SUBJECT_ID','CYCLE_START_DATE','CYCLE_NUM','REGIMEN_CONCEPT_ID','CYCLE_END_DATE','EVENT_ITEM')
+      cycle<-rbind(cycle,treatmentLine)
       return(cycle)
     }
     )

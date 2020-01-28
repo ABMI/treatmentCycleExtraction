@@ -16,22 +16,31 @@
 #' RecordsInEpisodeTableForm
 #' Transform regimen records into episode table form.
 #' @param regimenRecords regimen records
+#' @import dplyr
+#' @import tidyr 
 #' @keywords episode
 #' @return list of episode table and episode event table 
 #' @examples recordsInEpisodeTableForm(regimenRecords)
 #' @export 
 #' 
 recordsInEpisodeTableForm<- function(regimenRecords){
-  
+ 
   regimenRecords$CYCLE_START_DATE<-as.Date(regimenRecords$CYCLE_START_DATE,origin="1970-01-01")
   regimenRecords$CYCLE_END_DATE<-as.Date(regimenRecords$CYCLE_END_DATE,origin="1970-01-01")
   regimenRecords$episode_type_concept_id <-32545
   regimenRecords$episode_concept_id <-32532
+  regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_concept_id <- 32531
   regimenRecords$episode_parent_id <-NA
   regimenRecords$episode_object_concept_id <-32525
   regimenRecords$episode_id <- seq(nrow(regimenRecords))
   regimenRecords$episode_source_value <-NA
-  
+  class(regimenRecords$episode_parent_id)<- 'integer'
+ 
+  regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_parent_id <- regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_id
+  regimenRecords<-regimenRecords %>% group_by(SUBJECT_ID) %>% fill(episode_parent_id,.direction = c("up"))
+  class(regimenRecords) <- class(data)
+  regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_parent_id <- NA
+  regimenRecords[regimenRecords$CYCLE_NUM == 0]$CYCLE_NUM <- NA
   
   names(regimenRecords) <- c('person_id',
                              'episode_start_datetime',
@@ -49,6 +58,7 @@ recordsInEpisodeTableForm<- function(regimenRecords){
   cycleList <- data.frame(regimenRecords)
   regimenRecords <- cycleList[,c(11,1,8,2,5,9,3,10,7,12,4,6)]
   episodeTable <- regimenRecords[,c(1:11)]
+  regimenRecords <- regimenRecords %>% subset(episode_concept_id == 32532)
   episodeItemTable <- regimenRecords[,c(1,12)]
   
   

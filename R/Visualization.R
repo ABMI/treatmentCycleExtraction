@@ -67,7 +67,11 @@ episodeTableForVisualization <- function(connectionDetails,
   return(result)
 }
 #' @export 
-regimenHeatmap<-function(episodeTableFromDatabase,visualizationTargetRegimenId = NULL,heatmapInRatio = TRUE,maximumCycleNumber = NULL){
+regimenHeatmap<-function(episodeTableFromDatabase,
+                         visualizationTargetRegimenId = NULL,
+                         heatmapInRatio = TRUE,
+                         maximumCycleNumber = NULL,
+                         colors){
   
   if(is.null(visualizationTargetRegimenId)){visualizationTargetRegimenId<-unique(episodeTableFromDatabase$episodeSourceConceptId)}
   
@@ -96,7 +100,6 @@ regimenHeatmap<-function(episodeTableFromDatabase,visualizationTargetRegimenId =
   row.names(plotdata) <- plotdata$conceptName
   plotdata$conceptName <- NULL
   sort.order <- order(plotdata$"12")
-  colors <- RColorBrewer::brewer.pal(9, "Blues")
   heatmap<-superheat::superheat(plotdata,
                                 scale = FALSE,
                                 left.label.text.size=3,
@@ -116,13 +119,18 @@ generateHeatmap <- function(connectionDetails,
                             episodeTable,
                             visualizationTargetRegimenId = NULL,
                             heatmapInRatio = TRUE,
-                            maximumCycleNumber = NULL){
+                            maximumCycleNumber = NULL,
+                            colors){
   episodeTableFromDatabase<- episodeTableForVisualization(connectionDetails,
                                                           vocaDatabaseSchema,
                                                           oncologyDatabaseSchema,
                                                           episodeTable)
   
-  regimenHeatmap(episodeTableFromDatabase,visualizationTargetRegimenId,heatmapInRatio,maximumCycleNumber)
+  regimenHeatmap(episodeTableFromDatabase,
+                 visualizationTargetRegimenId,
+                 heatmapInRatio,
+                 maximumCycleNumber,
+                 colors)
 }
 #'@export sankeyFromEpisode
 sankeyFromEpisode<-function(connectionDetails,
