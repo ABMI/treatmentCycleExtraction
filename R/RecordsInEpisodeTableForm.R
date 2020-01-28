@@ -24,7 +24,8 @@
 #' @export 
 #' 
 recordsInEpisodeTableForm<- function(regimenRecords){
- 
+  
+  classIndex<-class(regimenRecords)
   regimenRecords$CYCLE_START_DATE<-as.Date(regimenRecords$CYCLE_START_DATE,origin="1970-01-01")
   regimenRecords$CYCLE_END_DATE<-as.Date(regimenRecords$CYCLE_END_DATE,origin="1970-01-01")
   regimenRecords$episode_type_concept_id <-32545
@@ -35,10 +36,10 @@ recordsInEpisodeTableForm<- function(regimenRecords){
   regimenRecords$episode_id <- seq(nrow(regimenRecords))
   regimenRecords$episode_source_value <-NA
   class(regimenRecords$episode_parent_id)<- 'integer'
- 
+  
   regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_parent_id <- regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_id
   regimenRecords<-regimenRecords %>% group_by(SUBJECT_ID) %>% fill(episode_parent_id,.direction = c("up"))
-  class(regimenRecords) <- class(data)
+  class(regimenRecords) <- classIndex
   regimenRecords[regimenRecords$CYCLE_NUM == 0]$episode_parent_id <- NA
   regimenRecords[regimenRecords$CYCLE_NUM == 0]$CYCLE_NUM <- NA
   
