@@ -23,6 +23,7 @@
 #' @param regimenExcludingDuplication
 #' @param topNregimen
 #' @param neutropeniaSeperationWithRatio
+#' @param neutrophilCohortId
 #' @keywords neutrophil,visualization
 #' @return Graph or data for neutrophil analysis
 #' @examples 
@@ -52,12 +53,14 @@ treatmentLineFromEpisode <- function(connectionDetails,
 #' @export
 neutropenia<-function(connectionDetails,
                       cohortDatabaseSchema,
-                      cohortTable){
+                      cohortTable,
+                      neutrophilCohortId){
   connection <- DatabaseConnector::connect(connectionDetails)
-  sql <- "select distinct * from @oncology_database_schema.@cohort order by subject_id,cohort_start_date"
+  sql <- "select distinct * from @cohort_database_schema.@cohort where cohort_definition_id = @cohort_definition_id order by subject_id,cohort_start_date"
   sql <- SqlRender::render(sql,
                            cohort_database_schema = cohortDatabaseSchema,
-                           cohort= cohortTable)
+                           cohort= cohortTable,
+                           cohort_definition_id = neutrophilCohortId)
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   result <- DatabaseConnector::querySql(connection, sql)
   colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
@@ -68,10 +71,12 @@ neutropenia<-function(connectionDetails,
 extractDataNeutrophilAnalysis<-function(connectionDetails,
                                         vocaDatabaseSchema,
                                         oncologyDatabaseSchema,
+                                        cohortDatabaseSchema,
                                         episodeTable,
                                         cohortTable,
                                         regimenExcludingDuplication,
-                                        topNregimen){
+                                        topNregimen,
+                                        neutrophilCohortId){
   treatmentLineData<-treatmentLineFromEpisode(connectionDetails,
                                               vocaDatabaseSchema,
                                               oncologyDatabaseSchema,
@@ -82,11 +87,13 @@ extractDataNeutrophilAnalysis<-function(connectionDetails,
                                              episodeTable)
   neutropeniaData<-neutropenia(connectionDetails,
                                cohortDatabaseSchema,
-                               cohortTable)
+                               cohortTable,
+                               neutrophilCohortId)
   
   neutropeniaData$conceptName <- "ANCUnder2000"
   neutropeniaData$episodeNumPadd <- 0
   names(neutropeniaData) <- c('episodeSourceConceptId','personId','episodeStartDatetime','episodeEndDatetime','conceptName','episodeNumber')
+  neutropeniaData$episodeSourceConceptId <- 0
   
   treatmentLineData <-treatmentLineData %>% subset(episodeSourceConceptId %in% regimenExcludingDuplication)
   
@@ -94,7 +101,7 @@ extractDataNeutrophilAnalysis<-function(connectionDetails,
   
   firstLineCycle<-episodeTable %>% subset(episodeParentId %in% firstLineIndex$episodeId) %>% select(episodeSourceConceptId,personId,episodeStartDatetime,episodeEndDatetime,conceptName,episodeNumber)
   
-  neutropeniaAfterChemo<-rbind(firstLineCycle,neutropeniaData) %>% group_by(personId)%>% arrange(personId,episodeStartDatetime) %>% mutate(lagReg = lag(episodeNumber)) %>% subset(is.na(lagReg)==FALSE & lagReg !=0) %>% subset(episodeSourceConceptId == 9999)%>% arrange(personId,episodeStartDatetime) %>% mutate(n=row_number()) %>% subset(n == 1)%>% select(episodeSourceConceptId,personId,episodeStartDatetime,episodeEndDatetime,conceptName,episodeNumber,lagReg)%>% ungroup()
+  neutropeniaAfterChemo<-rbind(firstLineCycle,neutropeniaData) %>% group_by(personId)%>% arrange(personId,episodeStartDatetime) %>% mutate(lagReg = lag(episodeNumber)) %>% subset(is.na(lagReg)==FALSE & lagReg !=0) %>% subset(episodeSourceConceptId == 0)%>% arrange(personId,episodeStartDatetime) %>% mutate(n=row_number()) %>% subset(n == 1)%>% select(episodeSourceConceptId,personId,episodeStartDatetime,episodeEndDatetime,conceptName,episodeNumber,lagReg)%>% ungroup()
   
   patientsNumberInFirstChemo<-firstLineCycle %>% select(conceptName,personId) 
   patientsNumberInFirstChemo<-unique(patientsNumberInFirstChemo)%>% group_by(conceptName)%>% summarise(n=n()) %>% filter(rank(desc(n))<=topNregimen)
@@ -125,7 +132,7 @@ plotNeutrophil<-function(neutropeniaSeperationWithRatio){
                        label = c(seq(1:16))) +labs(fill="Regimen") +
     labs(title = expression(Absolute~neutrophil~count<2.0%*%10^9/L~Timing),
          subtitle = "1 - 16 cycle",
-         caption = "*ratio : the number of ANC < 2000 patients at each cycleof the regimen/the number of patients treated each regimen as first-line therapy",
+         caption = "*ratio : the number of ANC < 2000 patients at each cycle of the regimen / the number of patients treated each regimen as first-line therapy",
          y = "*ratio (%)",
          x = "cycle (n)") +
     scale_y_continuous(limits = c(0, max(neutropeniaSeperationWithRatio$ratio)
