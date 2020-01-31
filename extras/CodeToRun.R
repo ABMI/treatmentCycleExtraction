@@ -121,8 +121,6 @@ regimenSankey<-sankeyFromEpisode(connectionDetails,
 sankey(regimenSankey)
 ##########################################
 #3. Neutrophil Analysis
-cohortDatabaseSchema <-'hkocdm'
-cohortTable <-'neutrophil_under_2000'
 neutrophilTargetRegimen <- c(35806596,
                              35804227,
                              35804761,
