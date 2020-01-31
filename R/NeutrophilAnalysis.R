@@ -20,7 +20,7 @@
 #' @param oncologyDatabaseSchema
 #' @param episodeTable
 #' @param cohortTable
-#' @param regimenExcludingDuplication
+#' @param neutrophilTargetRegimen
 #' @param topNregimen
 #' @param neutropeniaSeperationWithRatio
 #' @param neutrophilCohortId
@@ -74,7 +74,7 @@ extractDataNeutrophilAnalysis<-function(connectionDetails,
                                         cohortDatabaseSchema,
                                         episodeTable,
                                         cohortTable,
-                                        regimenExcludingDuplication,
+                                        neutrophilTargetRegimen,
                                         topNregimen,
                                         neutrophilCohortId){
   treatmentLineData<-treatmentLineFromEpisode(connectionDetails,
@@ -95,7 +95,7 @@ extractDataNeutrophilAnalysis<-function(connectionDetails,
   names(neutropeniaData) <- c('episodeSourceConceptId','personId','episodeStartDatetime','episodeEndDatetime','conceptName','episodeNumber')
   neutropeniaData$episodeSourceConceptId <- 0
   
-  treatmentLineData <-treatmentLineData %>% subset(episodeSourceConceptId %in% regimenExcludingDuplication)
+  treatmentLineData <-treatmentLineData %>% subset(episodeSourceConceptId %in% neutrophilTargetRegimen)
   
   firstLineIndex<-treatmentLineData %>% group_by(personId) %>% arrange(personId,episodeStartDatetime) %>% mutate(rown = row_number()) %>% subset(rown == 1) %>% ungroup()%>% select(episodeId)
   
@@ -135,6 +135,6 @@ plotNeutrophil<-function(neutropeniaSeperationWithRatio){
          caption = "*ratio : the number of ANC < 2000 patients at each cycle of the regimen / the number of patients treated each regimen as first-line therapy",
          y = "*ratio (%)",
          x = "cycle (n)") +
-    scale_y_continuous(limits = c(0, max(neutropeniaSeperationWithRatio$ratio)
+    scale_y_continuous(limits = c(0, 100
     )) + theme_minimal()+scale_color_manual(values=c("#000000", "#E69F00", "#56B4E9", "#009E73", 
                                                      "#999999", "#0072B2", "#D55E00", "#CC79A7"))}

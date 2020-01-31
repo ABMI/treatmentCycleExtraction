@@ -74,42 +74,74 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeEventTable,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
-#### Visualization ####
-##1. Sankey diagram:
-#colorectal
-sankeyTargetRegimen <- c(35804545,35804757,35804227,35804761,35804755,35804776,35804770,35804792)
-surgeryConceptId <-c(4079713)
-regimenChangeNumber <- 3
-regimenMinimumChangeNumber <- 2
-surgeryName <- 'Colectomy'
-gapDatesInTherapy <-10
 
-sankeyFromEpisode(connectionDetails,
-                  vocaDatabaseSchema,
-                  oncologyDatabaseSchema,
-                  episodeTable,
-                  sankeyTargetRegimen,
-                  surgeryConceptId,
-                  regimenChangeNumber,
-                  regimenMinimumChangeNumber,
-                  surgeryName,
-                  gapDatesInTherapy)
 
-##2. Parameter in tree:
-targetRegimen <- 35804761	
-parameterTree(targetRegimen)
-
-##3. Repeadted cycle heatmap:
+##Visualization##
+#1.Repetition number trend heatmap
 visualizationTargetRegimenId <- c()
 heatmapInRatio <- TRUE
-maximumCycleNumber <- 20
-colors <- RColorBrewer::brewer.pal(9, "Reds")
-generateHeatmap(connectionDetails,
-                vocaDatabaseSchema,
-                oncologyDatabaseSchema,
-                episodeTable,
-                visualizationTargetRegimenId,
-                heatmapInRatio,
-                maximumCycleNumber,
-                colors)
+maximumCycleNumber <- 30
+plotData<-generateHeatmap(connectionDetails,
+                          vocaDatabaseSchema,
+                          oncologyDatabaseSchema,
+                          episodeTable,
+                          visualizationTargetRegimenId,
+                          heatmapInRatio,
+                          maximumCycleNumber)
 
+colors <- RColorBrewer::brewer.pal(9, "Reds")
+repetitionTrendHeatmap(plotData,colors)
+##########################################
+#2.Sankey diagram for treatment pathway
+sankeyTargetRegimen <- c(35806596,
+                         35804227,
+                         35804761,
+                         35804776,
+                         35804755,
+                         35804770,
+                         35804792)
+
+surgeryConceptId <-c(4079713)
+regimenChangeNumber <- 3
+regimenMinimumChangeNumber <-3 
+surgeryName <- 'Colectomy'
+gapDatesInTherapy <-7
+regimenSankey<-sankeyFromEpisode(connectionDetails,
+                                 vocaDatabaseSchema,
+                                 oncologyDatabaseSchema,
+                                 cdmDatabaseSchema,
+                                 episodeTable,
+                                 sankeyTargetRegimen,
+                                 surgeryConceptId,
+                                 regimenChangeNumber,
+                                 regimenMinimumChangeNumber,
+                                 surgeryName,
+                                 gapDatesInTherapy)
+
+sankey(regimenSankey)
+##########################################
+#3. Neutrophil Analysis
+cohortDatabaseSchema <-'hkocdm'
+cohortTable <-'neutrophil_under_2000'
+neutrophilTargetRegimen <- c(35806596,
+                             35804227,
+                             35804761,
+                             35804776,
+                             35804755,
+                             35804770,
+                             35804792
+)
+
+topNregimen<-8
+neutrophilCohortId <- 9999
+neutropeniaSeperationWithRatio<-extractDataNeutrophilAnalysis(connectionDetails,
+                                                              vocaDatabaseSchema,
+                                                              oncologyDatabaseSchema,
+                                                              cohortDatabaseSchema,
+                                                              episodeTable,
+                                                              cohortTable,
+                                                              neutrophilTargetRegimen,
+                                                              topNregimen,
+                                                              neutrophilCohortId)
+
+plotNeutrophil(neutropeniaSeperationWithRatio)
