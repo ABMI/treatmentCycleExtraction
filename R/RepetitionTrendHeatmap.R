@@ -37,8 +37,7 @@
 regimenHeatmap<-function(episodeTableFromDatabase,
                          visualizationTargetRegimenId = NULL,
                          heatmapInRatio = TRUE,
-                         maximumCycleNumber = NULL,
-                         colors){
+                         maximumCycleNumber = NULL){
   
   if(is.null(visualizationTargetRegimenId)){visualizationTargetRegimenId<-unique(episodeTableFromDatabase$episodeSourceConceptId)}
   
@@ -66,7 +65,6 @@ regimenHeatmap<-function(episodeTableFromDatabase,
   plotData[is.na(plotData)] <- 0
   row.names(plotData) <- plotData$conceptName
   plotData$conceptName <- NULL
-  sort.order <- order(plotData$"12")
   return(plotData)
 }
 #'@export generateHeatmap
@@ -76,8 +74,7 @@ generateHeatmap <- function(connectionDetails,
                             episodeTable,
                             visualizationTargetRegimenId = NULL,
                             heatmapInRatio = TRUE,
-                            maximumCycleNumber = NULL,
-                            colors){
+                            maximumCycleNumber = NULL){
   episodeTableFromDatabase<- episodeTableForVisualization(connectionDetails,
                                                           vocaDatabaseSchema,
                                                           oncologyDatabaseSchema,
@@ -86,13 +83,14 @@ generateHeatmap <- function(connectionDetails,
   plotData<-regimenHeatmap(episodeTableFromDatabase,
                  visualizationTargetRegimenId,
                  heatmapInRatio,
-                 maximumCycleNumber,
-                 colors)
+                 maximumCycleNumber)
 return(plotData)
 }
 
 #'@export repetitionTrendHeatmap
-repetitionTrendHeatmap<-function(plotData){heatmap<-superheat::superheat(plotData,
+repetitionTrendHeatmap<-function(plotData,colors){
+  sort.order <- order(plotData$"1")
+  heatmap<-superheat::superheat(plotData,
                               scale = FALSE,
                               left.label.text.size=3,
                               left.label.size = 0.3,

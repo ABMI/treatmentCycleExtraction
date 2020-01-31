@@ -18,6 +18,7 @@
 #' @param connectionDetails
 #' @param vocaDatabaseSchema
 #' @param oncologyDatabaseSchema
+#' @param cdmDatabaseSchema
 #' @param episodeTable
 #' @param sankeyTargetRegimen
 #' @param surgeryConceptId
@@ -62,6 +63,7 @@ surgeryForSankey <- function(connectionDetails,
 sankeyFromEpisode<-function(connectionDetails,
                             vocaDatabaseSchema,
                             oncologyDatabaseSchema,
+                            cdmDatabaseSchema,
                             episodeTable,
                             sankeyTargetRegimen,
                             surgeryConceptId,
@@ -185,4 +187,4 @@ sankeyFromEpisode<-function(connectionDetails,
 sankey<-function(regimenSankey){
 sankeyDiagram <- networkD3::sankeyNetwork(Links = regimenSankey$links, Nodes = regimenSankey$nodes, Source = "source",
                                           Target = "target", Value = "freq", NodeID = "label", fontSize = 12, nodeWidth = 30)
-return(regimenSankey)}
+return(sankeyDiagram)}
