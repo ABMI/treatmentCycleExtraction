@@ -60,8 +60,9 @@ targetCohortId <- 272
 # The number of cores in use
 maxCores <- 4
 
-# Then run the following :
 ```
+
+# Then run the following :
 Generate episode and episode event table :
 ```r
 ## Episode table and episode Event generation
