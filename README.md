@@ -1,4 +1,4 @@
-# treatmentCycleExtraction
+<center># treatmentCycleExtraction</center>
 
 Introduction
 ==========
@@ -12,9 +12,7 @@ Dependencies
 ============
 * SqlRender
 * DatabaseConnector
-* plotly
 * dplyr
-* ggplot2
 * data.table
 * rjson
 
@@ -85,9 +83,9 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeAndEpisodeEvent)
 ```
 
-Cohort generation
+<center>Cohort generation</center>
 ============
-If you do not have cohort table, create the target cohort for treatmentCycleExtraction :
+If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
 ```r
 conceptIdSet <- c(443384,
                   4181344,
