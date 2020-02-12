@@ -1,5 +1,4 @@
 # treatmentCycleExtraction
-{: .text-center }
 
 Introduction
 ==========
@@ -84,8 +83,8 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeAndEpisodeEvent)
 ```
 
-Cohort generation
-{: .text-center }
+#Cohort generation
+
 ============
 If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
 ```r
