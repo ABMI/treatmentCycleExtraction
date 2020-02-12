@@ -83,7 +83,7 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeAndEpisodeEvent)
 ```
 
-#Cohort generation
+# Cohort generation
 
 ============
 If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
