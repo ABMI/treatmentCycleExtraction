@@ -12,9 +12,7 @@ Dependencies
 ============
 * SqlRender
 * DatabaseConnector
-* plotly
 * dplyr
-* ggplot2
 * data.table
 * rjson
 
@@ -61,38 +59,10 @@ targetCohortId <- 272
 
 # The number of cores in use
 maxCores <- 4
+
 ```
+
 # Then run the following :
-
-If you do not have cohort records, create the target cohort for treatmentCycleExtraction :
-```r
-conceptIdSet <- c(443384,
-                  4181344,
-                  443381,
-                  443390,
-                  4180792,
-                  4180791,
-                  443382,
-                  4180790,
-                  443391,
-                  435754,
-                  443383,
-                  4089661) #colorectal cancer
-
-targetCohortId <- 272
-
-createCohort(createCohortTable = FALSE,
-             connectionDetails = connectionDetails,
-             oracleTempSchema = NULL,
-             cdmDatabaseSchema = cdmDatabaseSchema,
-             cohortDatabaseSchema = cohortDatabaseSchema,
-             vocabularyDatabaseSchema = vocaDatabaseSchema,
-             cohortTable = cohortTable,
-             conceptIdSet = conceptIdSet,
-             includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId
-)
-```
 Generate episode and episode event table :
 ```r
 ## Episode table and episode Event generation
@@ -113,6 +83,37 @@ insertEpisodeToDatabase(connectionDetails,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
 ```
+
+# Cohort generation
+
+If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
+```r
+conceptIdSet <- c(443384,
+                  4181344,
+                  443381,
+                  443390,
+                  4180792,
+                  4180791,
+                  443382,
+                  4180790,
+                  443391,
+                  435754,
+                  443383,
+                  4089661) #colorectal cancer
+
+createCohort(createCohortTable = FALSE,
+             connectionDetails = connectionDetails,
+             oracleTempSchema = NULL,
+             cdmDatabaseSchema = cdmDatabaseSchema,
+             cohortDatabaseSchema = cohortDatabaseSchema,
+             vocabularyDatabaseSchema = vocaDatabaseSchema,
+             cohortTable = cohortTable,
+             conceptIdSet = conceptIdSet,
+             includeConceptIdSetDescendant = TRUE,
+             targetCohortId = targetCohortId
+)
+```
+
 License
 =======
   treatmentCycleExtraction is licensed under Apache License 2.0
