@@ -85,7 +85,6 @@ insertEpisodeToDatabase(connectionDetails,
 
 # Cohort generation
 
-============
 If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
 ```r
 conceptIdSet <- c(443384,
