@@ -21,6 +21,7 @@ cohortTable <-'cohort'
 episodeTable <- 'episode_table_name'
 episodeEventTable <- 'episode_event_table_name'
 
+# Create table in your database
 createEpisodeAndEventTable <- FALSE
 
 # Target regimen concept ids(blank = all):
@@ -56,8 +57,7 @@ createCohort(createCohortTable = FALSE,
              cohortTable = cohortTable,
              conceptIdSet = conceptIdSet,
              includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId
-)
+             targetCohortId = targetCohortId)
 ## Episode table and episode Event generation:
 episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
                                              connectionDetails,
@@ -74,72 +74,3 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeEventTable,
                         createEpisodeAndEventTable,
                         episodeAndEpisodeEvent)
-
-
-##Visualization##
-#1.Repetition number trend heatmap
-visualizationTargetRegimenId <- c()
-heatmapInRatio <- TRUE
-maximumCycleNumber <- 30
-plotData<-generateHeatmap(connectionDetails,
-                          vocaDatabaseSchema,
-                          oncologyDatabaseSchema,
-                          episodeTable,
-                          visualizationTargetRegimenId,
-                          heatmapInRatio,
-                          maximumCycleNumber)
-
-colors <- RColorBrewer::brewer.pal(9, "Reds")
-repetitionTrendHeatmap(plotData,colors)
-##########################################
-#2.Sankey diagram for treatment pathway
-sankeyTargetRegimen <- c(35806596,
-                         35804227,
-                         35804761,
-                         35804776,
-                         35804755,
-                         35804770,
-                         35804792)
-
-surgeryConceptId <-c(4079713)
-regimenChangeNumber <- 3
-regimenMinimumChangeNumber <-3 
-surgeryName <- 'Colectomy'
-gapDatesInTherapy <-7
-regimenSankey<-sankeyFromEpisode(connectionDetails,
-                                 vocaDatabaseSchema,
-                                 oncologyDatabaseSchema,
-                                 cdmDatabaseSchema,
-                                 episodeTable,
-                                 sankeyTargetRegimen,
-                                 surgeryConceptId,
-                                 regimenChangeNumber,
-                                 regimenMinimumChangeNumber,
-                                 surgeryName,
-                                 gapDatesInTherapy)
-
-sankey(regimenSankey)
-##########################################
-#3. Neutrophil Analysis
-neutrophilTargetRegimen <- c(35806596,
-                             35804227,
-                             35804761,
-                             35804776,
-                             35804755,
-                             35804770,
-                             35804792
-)
-
-topNregimen<-8
-neutrophilCohortId <- 9999
-neutropeniaSeperationWithRatio<-extractDataNeutrophilAnalysis(connectionDetails,
-                                                              vocaDatabaseSchema,
-                                                              oncologyDatabaseSchema,
-                                                              cohortDatabaseSchema,
-                                                              episodeTable,
-                                                              cohortTable,
-                                                              neutrophilTargetRegimen,
-                                                              topNregimen,
-                                                              neutrophilCohortId)
-
-plotNeutrophil(neutropeniaSeperationWithRatio)
