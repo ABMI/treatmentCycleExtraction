@@ -53,7 +53,7 @@ createCohort <- function(createCohortTable = F,
     DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
   }
   
-  ParallelLogger::logInfo("Insert cohort of interest into the cohor table")
+  ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "cohort.sql",
                                            packageName = "treatmentCycleExtraction",
                                            dbms = attr(connection,"dbms"),
