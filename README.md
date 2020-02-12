@@ -61,10 +61,33 @@ targetCohortId <- 272
 
 # The number of cores in use
 maxCores <- 4
-```
-# Then run the following :
 
-Create the target cohort for treatmentCycleExtraction :
+# Then run the following :
+```
+Generate episode and episode event table :
+```r
+## Episode table and episode Event generation
+episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
+                                             connectionDetails,
+                                             cohortTable,
+                                             cdmDatabaseSchema,
+                                             cohortDatabaseSchema,
+                                             targetCohortId,
+                                             maxCores)
+```
+Insert table into database :
+```r
+insertEpisodeToDatabase(connectionDetails,
+                        oncologyDatabaseSchema,
+                        episodeTable,
+                        episodeEventTable,
+                        createEpisodeAndEventTable,
+                        episodeAndEpisodeEvent)
+```
+
+Cohort generation
+============
+If you do not have cohort table, create the target cohort for treatmentCycleExtraction :
 ```r
 conceptIdSet <- c(443384,
                   4181344,
@@ -91,26 +114,7 @@ createCohort(createCohortTable = FALSE,
              targetCohortId = targetCohortId
 )
 ```
-Generate episode and episode event table :
-```r
-## Episode table and episode Event generation
-episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
-                                             connectionDetails,
-                                             cohortTable,
-                                             cdmDatabaseSchema,
-                                             cohortDatabaseSchema,
-                                             targetCohortId,
-                                             maxCores)
-```
-Insert table into database :
-```r
-insertEpisodeToDatabase(connectionDetails,
-                        oncologyDatabaseSchema,
-                        episodeTable,
-                        episodeEventTable,
-                        createEpisodeAndEventTable,
-                        episodeAndEpisodeEvent)
-```
+
 License
 =======
   treatmentCycleExtraction is licensed under Apache License 2.0
