@@ -1,4 +1,5 @@
-<center># treatmentCycleExtraction</center>
+# treatmentCycleExtraction
+{: .text-center }
 
 Introduction
 ==========
@@ -83,7 +84,8 @@ insertEpisodeToDatabase(connectionDetails,
                         episodeAndEpisodeEvent)
 ```
 
-<center>Cohort generation</center>
+Cohort generation
+{: .text-center }
 ============
 If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
 ```r
