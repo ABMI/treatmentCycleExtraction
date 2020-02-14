@@ -32,6 +32,23 @@ targetCohortId <- 272
 # The number of cores in use:
 maxCores <- 4
 
+## Episode table and episode Event generation:
+episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
+                                             connectionDetails,
+                                             cohortTable,
+                                             cdmDatabaseSchema,
+                                             cohortDatabaseSchema,
+                                             targetCohortId,
+                                             maxCores)
+
+## Insert episode table to database:
+insertEpisodeToDatabase(connectionDetails,
+                        oncologyDatabaseSchema,
+                        episodeTable,
+                        episodeEventTable,
+                        createEpisodeAndEventTable,
+                        episodeAndEpisodeEvent)
+
 ## Create the cohort for treatmentCycleExtraction:
 conceptIdSet <- c(443384,
                   4181344,
@@ -58,19 +75,9 @@ createCohort(createCohortTable = FALSE,
              conceptIdSet = conceptIdSet,
              includeConceptIdSetDescendant = TRUE,
              targetCohortId = targetCohortId)
-## Episode table and episode Event generation:
-episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
-                                             connectionDetails,
-                                             cohortTable,
-                                             cdmDatabaseSchema,
-                                             cohortDatabaseSchema,
-                                             targetCohortId,
-                                             maxCores)
 
-## Insert episode table to database:
-insertEpisodeToDatabase(connectionDetails,
-                        oncologyDatabaseSchema,
-                        episodeTable,
-                        episodeEventTable,
-                        createEpisodeAndEventTable,
-                        episodeAndEpisodeEvent)
+## Rule Editor ##
+
+targetRegimenIds <- c(35806596,35804761)
+newJson <- ruleEditor(targetRegimenIds) #edit your rule
+ruleSave(newJson,targetRegimenIds) #save your rule

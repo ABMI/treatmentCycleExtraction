@@ -81,7 +81,7 @@ recordsInEpisodeTableForm<- function(regimenRecords){
     EventTable <- rbind(EventTable, episodeItemTable_temp)
   }
   ParallelLogger::logInfo("Episode event table generated")
-  EventTable$visit_ccurrence_id <- NA
+  EventTable$visit_occurrence_id <- NA
   EventTable$condition_occurrence_id <- NA
   EventTable$procedure_occurrence_id <- NA
   EventTable$device_exposure_id <- NA
