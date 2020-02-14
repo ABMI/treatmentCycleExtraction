@@ -37,8 +37,8 @@ createCohort <- function(createCohortTable = F,
                          includeConceptIdSetDescendant = F,
                          targetCohortId
                          ){
-  if(length(targetCohortId) != 1) stop ("specify targetCohortId as one integer. It cannot be multiple.")
-  if(length(as.numeric(conceptIdSet)) <1 ) stop ("please specify concept Id Set as a numeric vector")
+  if(length(targetCohortId) != 1) stop ("Specify 'targetCohortId' as one integer. It cannot be multiple.")
+  if(length(as.numeric(conceptIdSet)) <1 ) stop ("Please specify concept Id Set as a numeric vector")
   
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
   
@@ -54,7 +54,7 @@ createCohort <- function(createCohortTable = F,
   }
   
   ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
-  sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "cohort.sql",
+  sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CohortGeneration.sql",
                                            packageName = "treatmentCycleExtraction",
                                            dbms = attr(connection,"dbms"),
                                            oracleTempSchema = oracleTempSchema,

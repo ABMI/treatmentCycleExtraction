@@ -58,7 +58,13 @@ generateEpisodeTable <- function(targetRegimenConceptIds,
   return(episodeAndEventTable)}
 
 #' @export
-insertEpisodeToDatabase <- function(connectionDetails,oncologyDatabaseSchema,episodeTable,episodeEventTable,createEpisodeAndEventTable,episodeAndEpisodeEvent){
+insertEpisodeToDatabase <- function(connectionDetails,
+                                    oncologyDatabaseSchema,
+                                    episodeTable,
+                                    episodeEventTable,
+                                    createEpisodeAndEventTable,
+                                    episodeAndEpisodeEvent,
+                                    oracleTempSchema = NULL){
   conn <- DatabaseConnector::connect(connectionDetails)
   
   episodeRecordsTable <- episodeAndEpisodeEvent[[1]]
@@ -71,12 +77,30 @@ insertEpisodeToDatabase <- function(connectionDetails,oncologyDatabaseSchema,epi
   
   episodeRecordsTable$episode_id <- as.numeric(episodeRecordsTable$episode_id)+lastEpisodeId
   episodeEventRecordsTable$episode_id <- as.numeric(episodeEventRecordsTable$episode_id)+lastEpisodeId
-  }else{}
+  }else{
+    connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+    ParallelLogger::logInfo("Creating table for the episode")
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeTable.sql",
+                                             packageName = "treatmentCycleExtraction",
+                                             dbms = attr(connection,"dbms"),
+                                             oracleTempSchema = oracleTempSchema,
+                                             oncology_database_schema = oncologyDatabaseSchema,
+                                             episode_table = episodeTable)
+    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+    ParallelLogger::logInfo("Creating table for the episode_event")
+    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeEventTable.sql",
+                                             packageName = "treatmentCycleExtraction",
+                                             dbms = attr(connection,"dbms"),
+                                             oracleTempSchema = oracleTempSchema,
+                                             oncology_database_schema = oncologyDatabaseSchema,
+                                             episode_event_table = episodeEventTable)
+    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+    DatabaseConnector::disconnect(connection)}
   
   
-  DatabaseConnector::insertTable(conn, episodeTable, episodeRecordsTable,dropTableIfExists = FALSE, createTable = createEpisodeAndEventTable, progressBar = TRUE )
+  DatabaseConnector::insertTable(conn, episodeTable, episodeRecordsTable,dropTableIfExists = FALSE, createTable = FALSE, progressBar = TRUE )
   
-  DatabaseConnector::insertTable(conn, episodeEventTable, episodeEventRecordsTable,dropTableIfExists = FALSE, createTable = createEpisodeAndEventTable, progressBar = TRUE )
+  DatabaseConnector::insertTable(conn, episodeEventTable, episodeEventRecordsTable,dropTableIfExists = FALSE, createTable = FALSE, progressBar = TRUE )
   
   DatabaseConnector::disconnect(conn)
 } 
