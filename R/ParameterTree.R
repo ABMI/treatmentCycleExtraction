@@ -31,7 +31,7 @@
 #' @import RColorBrewer
 #' @import collapsibleTree
 #' @export
-readJson <- function(jsonName = "regimenDrugSettingJsonForm.json"){
+readJson <- function(jsonName = "RegimenParameters.json"){
   pathToRjson <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenLists <-rjson::fromJSON(file = pathToRjson)
   

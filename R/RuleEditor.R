@@ -24,21 +24,26 @@
 #' @import data.table
 #' @examples
 #' @export ruleEditor
-## Rule Editor ##
-ruleEditor<-function(targetRegimenIds=NULL){
-  jsonName = "regimenDrugSettingJsonForm.json"
+## Rule Edit ##
+ruleEditor<-function(new=FALSE,
+                     targetRegimenIds=NULL){
+  if(new == TRUE){
+  newJson<-ruleAdder()}else{
+  jsonName = "RegimenParameters.json"
   filePath <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenJson <- readJson()
   if(!is.null(targetRegimenIds)){targetRegimenParameter<-regimenJson[unlist(lapply(regimenJson,`[`,'conceptId')) %in% targetRegimenIds]}else{targetRegimenParameter <- regimenJson}
   names(targetRegimenParameter)<-data.table::rbindlist(lapply(targetRegimenParameter,`[`,"regimenName"))$regimenName
   newJson<-listviewer::jsonedit_gadget(targetRegimenParameter)
   }
+  return(newJson)
+}
 #' @export ruleSave
 ##Rule Save##
 ruleSave<-function(newJson= NULL,
                    targetRegimenIds=NULL){
   if(is.null(newJson))stop("Run after the ruleEditor")
-  jsonName = "regimenDrugSettingJsonForm.json"
+  jsonName = "RegimenParameters.json"
   filePath <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenJson <- readJson()
   if(!is.null(targetRegimenIds)){otherParameters<-regimenJson[!(unlist(lapply(regimenJson,`[`,'conceptId')) %in% targetRegimenIds)]}else{otherParameters <-regimenJson}
@@ -46,3 +51,10 @@ ruleSave<-function(newJson= NULL,
   newList<-c(newJson,otherParameters)
   newJSON<-jsonlite::toJSON(newList, pretty = TRUE)
   write(newJSON,filePath)}
+#' @export
+## Rule Add ##
+ruleAdder<-function(){
+  jsonName = "RegimenTemplate.json"
+  regimenJson <- readJson(jsonName)
+  addJson<-listviewer::jsonedit_gadget(regimenJson)
+}
