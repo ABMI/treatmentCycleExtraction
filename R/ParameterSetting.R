@@ -27,7 +27,7 @@
 #' parameterSetting(targetRegimenConceptIds=targetRegimenConceptIds)
 
 #' @export
-readJson <- function(jsonName = "regimenDrugSettingJsonForm.json"){
+readJson <- function(jsonName = "RegimenParameters.json"){
   pathToRjson <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenLists <-rjson::fromJSON(file = pathToRjson)
   
@@ -67,7 +67,7 @@ regimenListParameterSetting <- function(regimenLists, targetRegimenConceptId){
 }
 
 #' @export parameterSetting
-parameterSetting <- function(jsonName= "regimenDrugSettingJsonForm.json",targetRegimenConceptIds){
+parameterSetting <- function(jsonName= "RegimenParameters.json",targetRegimenConceptIds){
   regimenLists <-readJson(jsonName = jsonName)
   if(is.null(targetRegimenConceptIds)){targetRegimenConceptIds <- sapply(regimenLists,`[`,"conceptId")}
   listFormRegimen<-lapply(targetRegimenConceptIds,regimenListParameterSetting,regimenLists=regimenLists)
