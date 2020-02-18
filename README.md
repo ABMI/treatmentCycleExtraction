@@ -110,8 +110,16 @@ createCohort(createCohortTable = FALSE,
              cohortTable = cohortTable,
              conceptIdSet = conceptIdSet,
              includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId
-)
+             targetCohortId = targetCohortId)
+```
+# Rule Editor
+
+If you need a modification in the rule for algorithm :
+```r
+targetRegimenIds <- c(35806596,35804761)
+newJson <- ruleEditor(targetRegimenIds) # Edit your rule
+newJson <- ruleEditor(new= TRUE) # Add a new rule
+ruleSave(newJson,targetRegimenIds) # Save your rule
 ```
 
 License
