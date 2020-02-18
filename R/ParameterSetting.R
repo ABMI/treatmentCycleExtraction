@@ -42,7 +42,7 @@ regimenListParameterSetting <- function(regimenLists, targetRegimenConceptId){
   if (class(regimenLists)!="regimenLists") stop ("regimenLists should be of type regimenLists")
   filteredRegimenLists<- regimenLists[unlist(lapply(regimenLists,`[`,"conceptId"))  %in% targetRegimenConceptId][[1]]
   
-  index <- !(names(filteredRegimenLists) %in% c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod'))
+  index <- !(names(filteredRegimenLists) %in% c('conceptId','regimenName','validStartDate','validEndDate','invalidReason','includeDescendant','gapDateBetweenCycle','gapDateBefore','gapDateAfter','drugInspectionDate','outofCohortPeriod','origin'))
   
   roleIndex<-lapply(filteredRegimenLists[index],`[`,"role")
   
@@ -58,7 +58,7 @@ regimenListParameterSetting <- function(regimenLists, targetRegimenConceptId){
   gapDateBetweenCycle <- filteredRegimenLists$gapDateBetweenCycle
   gapDateAfter <- filteredRegimenLists$gapDateAfter  
   gapDateBefore <- filteredRegimenLists$gapDateBefore
-  
+  if(filteredRegimenLists$invalidReason != "")stop("Target concept id has an invalid reason")
   parameters <- list(regimenConceptId,regimenName,includeDescendant,outofCohortPeriod,drugInspectionDate,gapDateBetweenCycle,gapDateAfter,gapDateBefore,primaryConceptIdList,secondaryConceptIdList,excludingConceptIdList)
   
   names(parameters) <- c('regimenConceptId','regimenName','includeDescendant','outofCohortPeriod','drugInspectionDate','gapDateBetweenCycle','gapDateAfter','gapDateBefore','primaryConceptIdList','secondaryConceptIdList','excludingConceptIdList')
