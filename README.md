@@ -39,78 +39,41 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 user=NULL,
                                                                 password=NULL,
                                                                 port='port')
-# The name of the database schema where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
-cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
-vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
-oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
 
-# The name of the table where the study-specific cohorts will be instantiated:
-cohortTable <-'cohort'
-episodeTable <- 'episode_table_name'
-episodeEventTable <- 'episode_event_table_name'
-createEpisodeAndEventTable <- FALSE
+oracleTempSchema <- NULL
+cdmDatabaseSchema <- "cdm_database_schema.dbo"
+cohortDatabaseSchema <- "cohort_database_schema.dbo"
+vocaDatabaseSchema <- "voca_database_schema.dbo"
+oncologyDatabaseSchema <- "oncology_database_schema.dbo" # Schema for Episode table and Episode_eventtable, default = cdmDatabaseSchema
 
-# Target regimen concept ids(blank = all):
-targetRegimenConceptIds <- c(35806596,35804761)
+createCohortTable = FALSE # Create cohort table for your cohort table
+createEpisodeTable = FALSE  # warning: existing table might be erased
+generateTargetCohort = FALSE  # Create target cohort ,i.e., 'colorectal cancer'
 
-# Target cohort definition id:
-targetCohortId <- 272
+episodeTable <- "episode_table"
+episodeEventTable <- "episode_event_table"
+cohortTable <- "cohort"
 
-# The number of cores in use
 maxCores <- 4
-
 ```
 
 # Then run the following :
 Generate episode and episode event table :
 ```r
-## Episode table and episode Event generation
-episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
-                                             connectionDetails,
-                                             cohortTable,
-                                             cdmDatabaseSchema,
-                                             cohortDatabaseSchema,
-                                             targetCohortId,
-                                             maxCores)
-```
-Insert table into database :
-```r
-insertEpisodeToDatabase(connectionDetails,
-                        oncologyDatabaseSchema,
-                        episodeTable,
-                        episodeEventTable,
-                        createEpisodeAndEventTable,
-                        episodeAndEpisodeEvent)
-```
-
-# Cohort generation
-
-If you do not have a cohort table, create the target cohort for treatmentCycleExtraction :
-```r
-conceptIdSet <- c(443384,
-                  4181344,
-                  443381,
-                  443390,
-                  4180792,
-                  4180791,
-                  443382,
-                  4180790,
-                  443391,
-                  435754,
-                  443383,
-                  4089661) #colorectal cancer
-
-createCohort(createCohortTable = FALSE,
-             connectionDetails = connectionDetails,
-             oracleTempSchema = NULL,
-             cdmDatabaseSchema = cdmDatabaseSchema,
-             cohortDatabaseSchema = cohortDatabaseSchema,
-             vocabularyDatabaseSchema = vocaDatabaseSchema,
-             cohortTable = cohortTable,
-             conceptIdSet = conceptIdSet,
-             includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId)
+executeExtraction(connectionDetails,
+                  oracleTempSchema = NULL,
+                  cdmDatabaseSchema,
+                  vocaDatabaseSchema = cdmDatabaseSchema,
+                  cohortDatabaseSchema,
+                  oncologyDatabaseSchema,
+                  cohortTable,
+                  episodeTable,
+                  episodeEventTable,
+                  includeConceptIdSetDescendant = TRUE,
+                  maxCores,
+                  createCohortTable = FALSE,
+                  createEpisodeTable = FALSE,
+                  generateTargetCohort = FALSE)
 ```
 # Rule Editor
 

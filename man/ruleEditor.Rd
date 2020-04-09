@@ -5,7 +5,7 @@
 \title{RuleEditor
 Edit JSON for algorithm.}
 \usage{
-ruleEditor(targetRegimenIds = NULL)
+ruleEditor(new = FALSE, targetRegimenIds = NULL)
 }
 \value{
 new JSON file
