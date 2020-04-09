@@ -2,29 +2,16 @@
 % Please edit documentation in R/DrugExposureInCohort.R
 \name{DrugExposureInCohort}
 \alias{DrugExposureInCohort}
-\title{DrugExposureInCohort
-This function allows you to extract drug exposure records of target regimen in cohort}
+\title{Drug exposure records}
 \usage{
-DrugExposureInCohort(targetConceptIds, connectionDetails, cohortTable,
+DrugExposureInCohort(targetConceptIds, connection, cohortTable,
   includeDescendant = TRUE, outofCohortPeriod = TRUE,
   cdmDatabaseSchema, cohortDatabaseSchema, targetCohortId)
 }
 \value{
-list form drug exposure data list
+Drug exposure
 }
 \description{
-DrugExposureInCohort
-This function allows you to extract drug exposure records of target regimen in cohort
+Drug exposure records
 }
-\examples{
-DrugListinCohort(targetConceptIds,
-connectionDetails,
-cohortTable,
-includeDescendant,
-outofCohortPeriod,
-cdmDatabaseSchema,
-cohortDatabaseSchema,
-targetCohortId)
-}
-\keyword{drug}
-\keyword{list}
+\keyword{Drug}
