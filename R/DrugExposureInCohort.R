@@ -1,6 +1,6 @@
 # Copyright 2020 Observational Health Data Sciences and Informatics
 #
-# This file is part of treatmentCycleExtraction
+# This file is part of CancerTxPathway
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,40 +13,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#' DrugExposureInCohort
-#' This function allows you to extract drug exposure records of target regimen in cohort
+
+#' Drug exposure records
+
 #' @param targetConceptIds
-#' @param connectionDetails
+#' @param connection
 #' @param cohortTable
 #' @param includeDescendant
 #' @param outofCohortPeriod
 #' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
 #' @param targetCohortId
-#' @keywords drug list
-#' @return list form drug exposure data list
-#' @export 
-#' @examples
-#' DrugListinCohort(targetConceptIds,
-#' connectionDetails,
-#' cohortTable,
-#' includeDescendant,
-#' outofCohortPeriod,
-#' cdmDatabaseSchema,
-#' cohortDatabaseSchema,
-#' targetCohortId)
+#' @keywords Drug
+#' @return Drug exposure
 
+#' @export
 # DrugExposureInCohort
 DrugExposureInCohort <- function(targetConceptIds,
-                                 connectionDetails,
+                                 connection,
                                  cohortTable,
                                  includeDescendant = TRUE,
                                  outofCohortPeriod = TRUE,
                                  cdmDatabaseSchema,
                                  cohortDatabaseSchema,
                                  targetCohortId){
-  pathToSql <- system.file("sql/sql_server", "DrugExposureInCohort.sql", package = "treatmentCycleExtraction")
-  connection <- DatabaseConnector::connect(connectionDetails)
+  pathToSql <- system.file("sql/sql_server", "DrugExposureInCohort.sql", package = "CancerTxPathway")
+
   sql <- SqlRender::readSql(pathToSql)
   sql <- SqlRender::render(sql,
                            cdm_database_schema = cdmDatabaseSchema,
@@ -59,6 +51,6 @@ DrugExposureInCohort <- function(targetConceptIds,
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
   result <- DatabaseConnector::querySql(connection, sql)
   colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
-  DatabaseConnector::disconnect(connection)
+
   return(result)
 }

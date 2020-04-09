@@ -1,4 +1,26 @@
-##__Code_to_run__##
+install.packages("DatabaseConnector")
+install.packages("collapsibleTree")
+install.packages("data.table")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("reshape2")
+install.packages("scales")
+install.packages("highcharter")
+install.packages("gridExtra")
+install.packages("viridis")
+install.packages("tidyverse")
+install.packages("hrbrthemes")
+install.packages("plotly")
+install.packages("SqlRender")
+install.packages("listviewer")
+install.packages("tidyr")
+install.packages("networkD3")
+install.packages("ggbeeswarm")
+install.packages("flexdashboard")
+install.packages("grid")
+
+library(flexdashboard)
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
@@ -8,76 +30,34 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
                                                                 password=NULL,
                                                                 port='port')
 
+oracleTempSchema <- NULL
+cdmDatabaseSchema <- "cdm_database_schema.dbo"
+cohortDatabaseSchema <- "cohort_database_schema.dbo"
+vocaDatabaseSchema <- "voca_database_schema.dbo"
+oncologyDatabaseSchema <- "oncology_database_schema.dbo" # Schema for Episode table and Episode_eventtable, default = cdmDatabaseSchema
 
-# The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <-'cohort_Database_Schema.dbo'
-cdmDatabaseSchema <- 'cdm_Database_Schema.dbo'
-vocaDatabaseSchema <- 'voca_Database_Schema.dbo'
-oncologyDatabaseSchema <- 'oncology_Database_Schema.dbo'
+createCohortTable = FALSE # Create cohort table for your cohort table
+createEpisodeTable = FALSE  # warning: existing table might be erased
+generateTargetCohort = FALSE  # Create target cohort ,i.e., 'colorectal cancer'
 
+episodeTable <- "episode_table"
+episodeEventTable <- "episode_event_table"
+cohortTable <- "cohort"
 
-# The name of the table where the study-specific cohorts will be instantiated:
-cohortTable <-'cohort'
-episodeTable <- 'episode_table_name'
-episodeEventTable <- 'episode_event_table_name'
-
-# Create table in your database
-createEpisodeAndEventTable <- FALSE
-
-# Target regimen concept ids(blank = all):
-targetRegimenConceptIds <- c(35806596,35804761) #FOLFOX, FOLFIRI
-
-targetCohortId <- 272
-
-# The number of cores in use:
 maxCores <- 4
 
-## Episode table and episode Event generation:
-episodeAndEpisodeEvent<-generateEpisodeTable(targetRegimenConceptIds,
-                                             connectionDetails,
-                                             cohortTable,
-                                             cdmDatabaseSchema,
-                                             cohortDatabaseSchema,
-                                             targetCohortId,
-                                             maxCores)
-
-## Insert episode table to database:
-insertEpisodeToDatabase(connectionDetails,
-                        oncologyDatabaseSchema,
-                        episodeTable,
-                        episodeEventTable,
-                        createEpisodeAndEventTable,
-                        episodeAndEpisodeEvent)
-
-## Create the cohort for treatmentCycleExtraction:
-conceptIdSet <- c(443384,
-                  4181344,
-                  443381,
-                  443390,
-                  4180792,
-                  4180791,
-                  443382,
-                  4180790,
-                  443391,
-                  435754,
-                  443383,
-                  4089661) #colorectal cancer (condition)
-
-targetCohortId <- 272
-
-createCohort(createCohortTable = FALSE,
-             connectionDetails = connectionDetails,
-             oracleTempSchema = NULL,
-             cdmDatabaseSchema = cdmDatabaseSchema,
-             cohortDatabaseSchema = cohortDatabaseSchema,
-             vocabularyDatabaseSchema = vocaDatabaseSchema,
-             cohortTable = cohortTable,
-             conceptIdSet = conceptIdSet,
-             includeConceptIdSetDescendant = TRUE,
-             targetCohortId = targetCohortId)
-
-## Rule Editor ##
-
-targetRegimenIds <- c(35806596,35804761)
-newJson <- ruleEditor(targetRegimenIds) #edit your rule
-ruleSave(newJson,targetRegimenIds) #save your rule
+executeExtraction(connectionDetails,
+                  oracleTempSchema = NULL,
+                  cdmDatabaseSchema,
+                  vocaDatabaseSchema = cdmDatabaseSchema,
+                  cohortDatabaseSchema,
+                  oncologyDatabaseSchema,
+                  cohortTable,
+                  episodeTable,
+                  episodeEventTable,
+                  includeConceptIdSetDescendant = TRUE,
+                  maxCores,
+                  createCohortTable = FALSE,
+                  createEpisodeTable = FALSE,
+                  generateTargetCohort = FALSE
+)
