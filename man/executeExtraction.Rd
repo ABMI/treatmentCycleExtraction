@@ -8,7 +8,7 @@ executeExtraction(connectionDetails, oracleTempSchema = NULL,
   cdmDatabaseSchema, vocaDatabaseSchema = cdmDatabaseSchema,
   cohortDatabaseSchema, oncologyDatabaseSchema, cohortTable, episodeTable,
   episodeEventTable, includeConceptIdSetDescendant = TRUE, maxCores,
-  createCohortTable = FALSE, createEpisodeTable = FALSE,
+  cohortTableCreation = FALSE, episodeTableCreation = FALSE,
   generateTargetCohort = FALSE)
 }
 \value{

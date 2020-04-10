@@ -10,11 +10,25 @@ treatmentCycleExtraction is an R package.
 
 Dependencies
 ============
-* SqlRender
-* DatabaseConnector
-* dplyr
-* data.table
-* rjson
+install.packages("listviewer")
+
+install.packages("jsonlite")
+
+install.packages("collapsibleTree")
+
+install.packages("rjson")
+
+install.packages("data.table")
+
+install.packages("dplyr")
+
+install.packages("tidyr")
+
+install.packages("DatabaseConnector")
+
+install.packages("ParallelLogger")
+
+install.packages("SqlRender")
 
 Getting started
 ============
@@ -63,7 +77,7 @@ Generate episode and episode event table :
 executeExtraction(connectionDetails,
                   oracleTempSchema = NULL,
                   cdmDatabaseSchema,
-                  vocaDatabaseSchema = cdmDatabaseSchema,
+                  vocaDatabaseSchema,
                   cohortDatabaseSchema,
                   oncologyDatabaseSchema,
                   cohortTable,
@@ -71,8 +85,8 @@ executeExtraction(connectionDetails,
                   episodeEventTable,
                   includeConceptIdSetDescendant = TRUE,
                   maxCores,
-                  createCohortTable = FALSE,
-                  createEpisodeTable = FALSE,
+                  cohortTableCreation = FALSE,
+                  episodeTableCreation = FALSE,
                   generateTargetCohort = FALSE)
 ```
 # Rule Editor

@@ -1,6 +1,6 @@
 # Copyright 2020 Observational Health Data Sciences and Informatics
 #
-# This file is part of CancerTxPathway
+# This file is part of treatmentCycleExtraction
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ createCohortTable <- function(connection,
   # Create Cohort table in your DB
     ParallelLogger::logInfo("Create table for the cohorts")
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateCohortTable.sql",
-                                             packageName = "CancerTxPathway",
+                                             packageName = "treatmentCycleExtraction",
                                              dbms = attr(connection,"dbms"),
                                              oracleTempSchema = oracleTempSchema,
                                              cohort_database_schema = cohortDatabaseSchema,
@@ -51,8 +51,8 @@ TargetCohortGeneration <- function(connection,
                                    includeConceptIdSetDescendant = TRUE
 ){
   # Load CSV file including Concept_ids for target cohort
-  pathToCsv <- system.file("csv", "Info_TargetCohort.csv", package = "CancerTxPathway")
-  cohortInfo <- read.csv(pathToCsv, stringsAsFactors = F)
+  pathToCsv <- system.file("csv", "Info_TargetCohort.csv", package = "treatmentCycleExtraction")
+  cohortInfo <- read.csv(pathToCsv, header = TRUE, stringsAsFactors = F)
 
   ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
 
@@ -64,7 +64,7 @@ TargetCohortGeneration <- function(connection,
     targetCohortId <- cohortInfo$cohortId[i]
 
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CohortGeneration.sql",
-                                             packageName = "CancerTxPathway",
+                                             packageName = "treatmentCycleExtraction",
                                              dbms = attr(connection,"dbms"),
                                              oracleTempSchema = oracleTempSchema,
                                              cdm_database_schema = cdmDatabaseSchema,
