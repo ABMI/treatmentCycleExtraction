@@ -11,14 +11,23 @@ treatmentCycleExtraction is an R package.
 Dependencies
 ============
 install.packages("listviewer")
+
 install.packages("jsonlite")
+
 install.packages("collapsibleTree")
+
 install.packages("rjson")
+
 install.packages("data.table")
+
 install.packages("dplyr")
+
 install.packages("tidyr")
+
 install.packages("DatabaseConnector")
+
 install.packages("ParallelLogger")
+
 install.packages("SqlRender")
 
 Getting started
