@@ -26,8 +26,8 @@
 #' @param episodeEventTable
 #' @param includeConceptIdSetDescendant
 #' @param maxCores
-#' @param createCohortTable
-#' @param createEpisodeTable
+#' @param cohortTableCreation
+#' @param episodeTableCreation
 #' @param generateTargetCohort
 #' @return Target Cohort, Episode, Episode Event
 #' @examples
@@ -44,8 +44,8 @@ executeExtraction <- function(connectionDetails,
                               episodeEventTable,
                               includeConceptIdSetDescendant = TRUE,
                               maxCores,
-                              createCohortTable = FALSE,
-                              createEpisodeTable = FALSE,
+                              cohortTableCreation = FALSE,
+                              episodeTableCreation = FALSE,
                               generateTargetCohort = FALSE
 ){
 
@@ -57,7 +57,7 @@ executeExtraction <- function(connectionDetails,
   ###################
 
   # Create cohort table
-  if(createCohortTable){
+  if(cohortTableCreation){
     createCohortTable(connection,
                       oracleTempSchema,
                       cohortDatabaseSchema,
@@ -86,7 +86,7 @@ executeExtraction <- function(connectionDetails,
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
 
   # Create Episode table, Episode_event
-  if(createEpisodeTable){
+  if(episodeTableCreation){
     createEpisodeTable(connection,
                        oracleTempSchema,
                        oncologyDatabaseSchema,
@@ -98,11 +98,8 @@ executeExtraction <- function(connectionDetails,
   DatabaseConnector::disconnect(connection)
 
   # Load regimen Concept_Id for Target Cohort (Cohort_Definition_Id)
-  pathToCsv <- system.file("csv", "Info_TargetRegimen.csv", package = "CancerTxPathway")
-  regimenInfo <- read.csv(pathToCsv)
-
-  # DB connection_3
-  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+  pathToCsv <- system.file("csv", "Info_TargetRegimen.csv", package = "treatmentCycleExtraction")
+  regimenInfo <- read.csv(pathToCsv, header = TRUE, stringsAsFactors = F)
 
   # Extract Episode / Episode_event table
   for(i in 1:nrow(regimenInfo)){
@@ -116,7 +113,7 @@ executeExtraction <- function(connectionDetails,
 
     # Generate Episode / Episode_event table
     episodes <- generateEpisode(parameters,
-                                connection,
+                                connectionDetails,
                                 cohortTable,
                                 cdmDatabaseSchema,
                                 cohortDatabaseSchema,
@@ -124,13 +121,10 @@ executeExtraction <- function(connectionDetails,
                                 maxCores)
 
     # Insert Episode / Episode_event table to DB
-    insertEpisode(connection,
+    insertEpisode(connectionDetails,
                   oncologyDatabaseSchema,
                   episodeTable,
                   episodeEventTable,
                   episodes)
-
-    # DB disconnection_3
-    DatabaseConnector::disconnect(connection)
   }
 }

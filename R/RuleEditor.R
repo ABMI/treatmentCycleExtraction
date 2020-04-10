@@ -30,7 +30,7 @@ ruleEditor<-function(new=FALSE,
   if(new == TRUE){
   newJson<-ruleAdder()}else{
   jsonName = "RegimenParameters.json"
-  filePath <-system.file("Json", jsonName, package = "CancerTxPathway")
+  filePath <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenJson <- readJson()
   if(!is.null(targetRegimenIds)){targetRegimenParameter<-regimenJson[unlist(lapply(regimenJson,`[`,'conceptId')) %in% targetRegimenIds]}else{targetRegimenParameter <- regimenJson}
   names(targetRegimenParameter)<-data.table::rbindlist(lapply(targetRegimenParameter,`[`,"regimenName"))$regimenName
@@ -44,7 +44,7 @@ ruleSave<-function(newJson= NULL,
                    targetRegimenIds=NULL){
   if(is.null(newJson))stop("Run after the ruleEditor")
   jsonName = "RegimenParameters.json"
-  filePath <-system.file("Json", jsonName, package = "CancerTxPathway")
+  filePath <-system.file("Json", jsonName, package = "treatmentCycleExtraction")
   regimenJson <- readJson()
   if(!is.null(targetRegimenIds)){otherParameters<-regimenJson[!(unlist(lapply(regimenJson,`[`,'conceptId')) %in% targetRegimenIds)]}else{otherParameters <-regimenJson}
   names(newJson) <- NULL

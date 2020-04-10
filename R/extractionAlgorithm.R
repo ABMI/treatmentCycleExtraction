@@ -33,17 +33,20 @@
 #' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
 #' @param targetCohortId
+#' @param connectionDetails
 
 #' @export
 DrugExposureInCohort <- function(targetConceptIds,
-                                 connection,
+                                 connectionDetails,
                                  cohortTable,
                                  includeDescendant = TRUE,
                                  outofCohortPeriod = TRUE,
                                  cdmDatabaseSchema,
                                  cohortDatabaseSchema,
-                                 targetCohortId){
-  pathToSql <- system.file("sql/sql_server", "DrugExposureInCohort.sql", package = "CancerTxPathway")
+                                 targetCohortId
+){
+  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+  pathToSql <- system.file("sql/sql_server", "DrugExposureInCohort.sql", package = "treatmentCycleExtraction")
   
   sql <- SqlRender::readSql(pathToSql)
   sql <- SqlRender::render(sql,
@@ -54,10 +57,10 @@ DrugExposureInCohort <- function(targetConceptIds,
                            result_database_schema = cohortDatabaseSchema,
                            target_concept_Ids = targetConceptIds,
                            target_cohort_Id = targetCohortId)
-  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
+  sql <- SqlRender::translate(sql, targetDialect = attr(connection,"dbms"))
   result <- DatabaseConnector::querySql(connection, sql)
   colnames(result) <- SqlRender::snakeCaseToCamelCase(colnames(result))
-  
+  DatabaseConnector::disconnect(connection)
   return(result)
 }
 ##########################
@@ -167,7 +170,7 @@ gapDateExamination<-function(targetSubjectId,
                              gapDateAfter,
                              regimenConceptId){
   
-  drugPassed<-drugRecordExamination(targetSubjectId=targetSubjectId,
+  drugPassed <- drugRecordExamination(targetSubjectId=targetSubjectId,
                                     primaryConceptRecords=primaryConceptRecords,
                                     secondaryConceptRecords=secondaryConceptRecords,
                                     excludingConceptRecords=excludingConceptRecords,

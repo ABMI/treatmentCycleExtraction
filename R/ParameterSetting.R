@@ -67,7 +67,7 @@ parameterSetting <- function(targetRegimenConceptIds){
 
   # Load JSON File
   jsonFile <- "RegimenParameters.json"
-  pathToRjson <- system.file("Json", jsonFile, package = "CancerTxPathway")
+  pathToRjson <- system.file("Json", jsonFile, package = "treatmentCycleExtraction")
   regimenInstance <- rjson::fromJSON(file = pathToRjson)
   class(regimenInstance) = "regimenLists"
 

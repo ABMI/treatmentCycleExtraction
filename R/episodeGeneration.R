@@ -15,7 +15,6 @@
 # limitations under the License.
 
 #' @param targetParameter
-#' @param connection
 #' @param oracleTempSchema
 #' @param cdmDatabaseSchema
 #' @param cohortDatabaseSchema
@@ -27,43 +26,44 @@
 #' @param cohortTable
 #' @param episodeTable
 #' @param episodeEventTable
+#' @param connectionDetails
 #' @import dplyr
 #' @import tidyr
 
 #' @export
 # 1. Target chemotherapy records extraction tool
 chemotherapyRecordsExtraction <- function(targetParameter,
-                                          connection,
+                                          connectionDetails,
                                           cohortTable,
                                           cdmDatabaseSchema,
                                           cohortDatabaseSchema,
                                           targetCohortId,
                                           maxCores
-)
+                                          )
 {
   if (class(targetParameter)!="regimenLists") stop ("parameters should be regimenLists type")
   
   # Define parameters
-  regimenConceptId <- parameters$regimenConceptId
-  regimenName <- parameters$regimenName
-  includeDescendant <- parameters$includeDescendant
-  outofCohortPeriod <- parameters$outofCohortPeriod
-  combinationCriteria <- parameters$combinationCriteria
-  gapDateBetweenCycle <- parameters$gapDateBetweenCycle
-  gapDateAfter <- parameters$gapDateAfter
-  gapDateBefore <- parameters$gapDateBefore
-  primaryConceptIdList <- parameters$primaryConceptIdList
-  secondaryConceptIdList <- parameters$secondaryConceptIdList
-  excludingConceptIdList <- parameters$excludingConceptIdList
+  regimenConceptId <- targetParameter$regimenConceptId
+  regimenName <- targetParameter$regimenName
+  includeDescendant <- targetParameter$includeDescendant
+  outofCohortPeriod <- targetParameter$outofCohortPeriod
+  combinationCriteria <- targetParameter$combinationCriteria
+  gapDateBetweenCycle <- targetParameter$gapDateBetweenCycle
+  gapDateAfter <- targetParameter$gapDateAfter
+  gapDateBefore <- targetParameter$gapDateBefore
+  primaryConceptIdList <- targetParameter$primaryConceptIdList
+  secondaryConceptIdList <- targetParameter$secondaryConceptIdList
+  excludingConceptIdList <- targetParameter$excludingConceptIdList
   
   # Primary records
-  primaryConceptRecords <- DrugExposureInCohort(connection,
+  primaryConceptRecords <- DrugExposureInCohort(targetConceptIds = primaryConceptIdList,
+                                                connectionDetails,
                                                 cohortTable,
                                                 includeDescendant,
                                                 outofCohortPeriod,
                                                 cdmDatabaseSchema,
                                                 cohortDatabaseSchema,
-                                                targetConceptIds = primaryConceptIdList,
                                                 targetCohortId)
   
   # Secondary records
@@ -71,10 +71,10 @@ chemotherapyRecordsExtraction <- function(targetParameter,
   secondaryConceptRecords <- ParallelLogger::clusterApply(cluster,
                                                           secondaryConceptIdList,
                                                           DrugExposureInCohort,
-                                                          connection,
+                                                          connectionDetails,
                                                           cohortTable,
-                                                          includeDescendant = TRUE,
-                                                          outofCohortPeriod = TRUE,
+                                                          includeDescendant,
+                                                          outofCohortPeriod,
                                                           cdmDatabaseSchema,
                                                           cohortDatabaseSchema,
                                                           targetCohortId)
@@ -82,13 +82,13 @@ chemotherapyRecordsExtraction <- function(targetParameter,
   
   # Exclude records
   if(length(excludingConceptIdList)==0){excludingConceptRecords <- NULL}else{
-    excludingConceptRecords <- DrugExposureInCohort(connection,
+    excludingConceptRecords <- DrugExposureInCohort(targetConceptIds = excludingConceptIdList,
+                                                    connectionDetails,
                                                     cohortTable,
                                                     includeDescendant,
                                                     outofCohortPeriod,
                                                     cdmDatabaseSchema,
                                                     cohortDatabaseSchema,
-                                                    targetConceptIds = excludingConceptIdList,
                                                     targetCohortId)
   }
   
@@ -193,7 +193,7 @@ chemotherapyToEpisode<- function(chemotherapyRecords){
 # 3. Using chemotherapy extraction tool and episode transformation tool
 #' @export
 generateEpisode <- function(parameters,
-                            connection,
+                            connectionDetails,
                             cohortTable,
                             cdmDatabaseSchema,
                             cohortDatabaseSchema,
@@ -201,17 +201,17 @@ generateEpisode <- function(parameters,
                             maxCores){
   
   ParallelLogger::logInfo("Episode / Episode_event extraction start")
-  
+  ParallelLogger::logInfo(paste0(Sys.time()))
   # Extract target chemotherapy records
   chemotherapyRecords <- lapply(1:length(parameters),function(i){
     targetParameter <- parameters[[i]]
-    chemotherapyRecordsExtraction(targetParameter = targetParameter,
-                                  connection,
-                                  cohortTable = cohortTable,
-                                  cdmDatabaseSchema = cdmDatabaseSchema,
-                                  cohortDatabaseSchema = cohortDatabaseSchema,
-                                  targetCohortId = targetCohortId,
-                                  maxCores = maxCores)
+    specificChemoRecords <- chemotherapyRecordsExtraction(targetParameter,
+                                  connectionDetails,
+                                  cohortTable,
+                                  cdmDatabaseSchema,
+                                  cohortDatabaseSchema,
+                                  targetCohortId,
+                                  maxCores)
     
     # Logger for target cohort (1/4)
     if(round(i/length(parameters)*100,2) >= 25 && round((i-1)/length(parameters)*100,2) < 25){
@@ -243,7 +243,8 @@ generateEpisode <- function(parameters,
       )
       )
     }
-  }
+    return(specificChemoRecords)
+    }
   )
   chemotherapyRecords <- data.table::rbindlist(chemotherapyRecords)
   
@@ -267,7 +268,7 @@ createEpisodeTable <- function(connection,
   # Create Episode
   ParallelLogger::logInfo("Create Episode table")
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeTable.sql",
-                                           packageName = "CancerTxPathway",
+                                           packageName = "treatmentCycleExtraction",
                                            dbms = attr(connection,"dbms"),
                                            oracleTempSchema = oracleTempSchema,
                                            oncology_database_schema = oncologyDatabaseSchema,
@@ -277,7 +278,7 @@ createEpisodeTable <- function(connection,
   # Create Episode_event
   ParallelLogger::logInfo("Create Episode_event table")
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateEpisodeEventTable.sql",
-                                           packageName = "CancerTxPathway",
+                                           packageName = "treatmentCycleExtraction",
                                            dbms = attr(connection,"dbms"),
                                            oracleTempSchema = oracleTempSchema,
                                            oncology_database_schema = oncologyDatabaseSchema,
@@ -287,14 +288,14 @@ createEpisodeTable <- function(connection,
 
 # 5. Insert your episode records into database
 #' @export
-insertEpisode <- function(connection,
+insertEpisode <- function(connectionDetails,
                           oncologyDatabaseSchema,
                           episodeTable,
                           episodeEventTable,
                           episodes){
-  
-  episode <- episodeAndEpisodeEvent[[1]]
-  episodeEvent <- episodeAndEpisodeEvent[[2]]
+  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+  episode <- episodes[[1]]
+  episodeEvent <- episodes[[2]]
   
   # Find last episode_Id
   sql <- 'SELECT max(EPISODE_ID) FROM @oncology_database_schema.@episode_table'
@@ -326,4 +327,5 @@ insertEpisode <- function(connection,
                                  dropTableIfExists = FALSE,
                                  createTable = FALSE,
                                  progressBar = TRUE )
+  DatabaseConnector::disconnect(connection)
 }

@@ -1,11 +1,13 @@
-install.packages("DatabaseConnector")
+install.packages("listviewer")
+install.packages("jsonlite")
 install.packages("collapsibleTree")
+install.packages("rjson")
 install.packages("data.table")
 install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("SqlRender")
-install.packages("listviewer")
 install.packages("tidyr")
+install.packages("DatabaseConnector")
+install.packages("ParallelLogger")
+install.packages("SqlRender")
 
 # Details for connecting to the server:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms='pdw',
@@ -34,7 +36,7 @@ maxCores <- 4
 executeExtraction(connectionDetails,
                   oracleTempSchema = NULL,
                   cdmDatabaseSchema,
-                  vocaDatabaseSchema = cdmDatabaseSchema,
+                  vocaDatabaseSchema,
                   cohortDatabaseSchema,
                   oncologyDatabaseSchema,
                   cohortTable,
@@ -42,7 +44,6 @@ executeExtraction(connectionDetails,
                   episodeEventTable,
                   includeConceptIdSetDescendant = TRUE,
                   maxCores,
-                  createCohortTable = FALSE,
-                  createEpisodeTable = FALSE,
-                  generateTargetCohort = FALSE
-)
+                  cohortTableCreation = FALSE,
+                  episodeTableCreation = FALSE,
+                  generateTargetCohort = FALSE)
