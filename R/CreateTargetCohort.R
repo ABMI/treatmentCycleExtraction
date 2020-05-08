@@ -42,7 +42,7 @@ createCohortTable <- function(connection,
 }
 
 #' @export
-TargetCohortGeneration <- function(connection,
+targetCohortGeneration <- function(connection,
                                    oracleTempSchema = NULL,
                                    cdmDatabaseSchema,
                                    vocaDatabaseSchema = cdmDatabaseSchema,

@@ -66,7 +66,7 @@ executeExtraction <- function(connectionDetails,
 
   # Generate target cohort
   if(generateTargetCohort){
-    TargetCohortGeneration(connection,
+    targetCohortGeneration(connection,
                            oracleTempSchema,
                            cdmDatabaseSchema,
                            vocaDatabaseSchema,
@@ -98,14 +98,14 @@ executeExtraction <- function(connectionDetails,
   DatabaseConnector::disconnect(connection)
 
   # Load regimen Concept_Id for Target Cohort (Cohort_Definition_Id)
-  pathToCsv <- system.file("csv", "Info_TargetRegimen.csv", package = "treatmentCycleExtraction")
+  pathToCsv <- system.file("csv", "Info_TargetCohort.csv", package = "treatmentCycleExtraction")
   regimenInfo <- read.csv(pathToCsv, header = TRUE, stringsAsFactors = F)
 
   # Extract Episode / Episode_event table
   for(i in 1:nrow(regimenInfo)){
 
     # Load target Cohort_Definition_Id, List for Regimen_Concept_Id
-    targetCohortId <- regimenInfo$targetCohortId[i]
+    targetCohortId <- regimenInfo$cohortId[i]
     targetRegimenConceptIds <- strsplit(as.character(regimenInfo$regimenConceptIds),';')[[i]]
 
     # JSON parameters to List form
