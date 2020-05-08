@@ -60,8 +60,8 @@ cohortDatabaseSchema <- "cohort_database_schema.dbo"
 vocaDatabaseSchema <- "voca_database_schema.dbo"
 oncologyDatabaseSchema <- "oncology_database_schema.dbo" # Schema for Episode table and Episode_eventtable, default = cdmDatabaseSchema
 
-createCohortTable = FALSE # Create cohort table for your cohort table
-createEpisodeTable = FALSE  # warning: existing table might be erased
+cohortTableCreation = FALSE # Create cohort table for your cohort table
+episodeTableCreation = FALSE  # warning: existing table might be erased
 generateTargetCohort = FALSE  # Create target cohort ,i.e., 'colorectal cancer'
 
 episodeTable <- "episode_table"
