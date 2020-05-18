@@ -118,12 +118,13 @@ executeExtraction <- function(connectionDetails,
                                 cohortDatabaseSchema,
                                 targetCohortId,
                                 maxCores)
-
+    if(length(episodes) != 0){
     # Insert Episode / Episode_event table to DB
     insertEpisode(connectionDetails,
                   oncologyDatabaseSchema,
                   episodeTable,
                   episodeEventTable,
                   episodes)
+    }
   }
 }
