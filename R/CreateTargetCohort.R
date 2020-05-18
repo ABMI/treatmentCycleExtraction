@@ -45,7 +45,6 @@ createCohortTable <- function(connection,
 targetCohortGeneration <- function(connection,
                                    oracleTempSchema = NULL,
                                    cdmDatabaseSchema,
-                                   vocaDatabaseSchema = cdmDatabaseSchema,
                                    cohortDatabaseSchema = cdmDatabaseSchema,
                                    cohortTable,
                                    includeConceptIdSetDescendant = TRUE
