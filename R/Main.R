@@ -69,7 +69,6 @@ executeExtraction <- function(connectionDetails,
     targetCohortGeneration(connection,
                            oracleTempSchema,
                            cdmDatabaseSchema,
-                           vocaDatabaseSchema,
                            cohortDatabaseSchema,
                            cohortTable,
                            includeConceptIdSetDescendant)

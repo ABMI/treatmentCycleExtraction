@@ -31,18 +31,18 @@ createCohortTable <- function(connection,
                               cohortTable
 ){
   # Create Cohort table in your DB
-    ParallelLogger::logInfo("Create table for the cohorts")
-    sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateCohortTable.sql",
-                                             packageName = "treatmentCycleExtraction",
-                                             dbms = attr(connection,"dbms"),
-                                             oracleTempSchema = oracleTempSchema,
-                                             cohort_database_schema = cohortDatabaseSchema,
-                                             cohort_table = cohortTable)
-    DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
+  ParallelLogger::logInfo("Create table for the cohorts")
+  sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CreateCohortTable.sql",
+                                           packageName = "treatmentCycleExtraction",
+                                           dbms = attr(connection,"dbms"),
+                                           oracleTempSchema = oracleTempSchema,
+                                           cohort_database_schema = cohortDatabaseSchema,
+                                           cohort_table = cohortTable)
+  DatabaseConnector::executeSql(connection, sql, progressBar = TRUE, reportOverallTime = TRUE)
 }
 
 #' @export
-targetCohortGeneration <- function(connection,
+TargetCohortGeneration <- function(connection,
                                    oracleTempSchema = NULL,
                                    cdmDatabaseSchema,
                                    vocaDatabaseSchema = cdmDatabaseSchema,
@@ -53,22 +53,22 @@ targetCohortGeneration <- function(connection,
   # Load CSV file including Concept_ids for target cohort
   pathToCsv <- system.file("csv", "Info_TargetCohort.csv", package = "treatmentCycleExtraction")
   cohortInfo <- read.csv(pathToCsv, header = TRUE, stringsAsFactors = F)
-
+  
   ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
-
+  
   # Insert multiple target cohort
   for (i in 1:nrow(cohortInfo)) {
-
+    
     # Load target Cohort_Definition_Id, Concept_Id
     targetConceptIdSet <- paste(strsplit(as.character(cohortInfo$conceptIds),';')[[i]],collapse = ',')
     targetCohortId <- cohortInfo$cohortId[i]
-
+    
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename= "CohortGeneration.sql",
                                              packageName = "treatmentCycleExtraction",
                                              dbms = attr(connection,"dbms"),
                                              oracleTempSchema = oracleTempSchema,
                                              cdm_database_schema = cdmDatabaseSchema,
-                                             vocabulary_database_schema = vocaDatabaseSchema,
+                                             vocabulary_database_schema = cdmDatabaseSchema,
                                              target_database_schema = cohortDatabaseSchema,
                                              target_cohort_table = cohortTable,
                                              include_descendant = includeConceptIdSetDescendant,
