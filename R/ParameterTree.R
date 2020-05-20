@@ -24,11 +24,8 @@
 #' @return Graph or table for episode table
 #' @examples
 #' @import dplyr
-#' @import superheat
-#' @import networkD3
 #' @import ggplot2
 #' @import tidyr
-#' @import RColorBrewer
 #' @import collapsibleTree
 #' @export parameterTree
 parameterTree<-function(targetRegimenConceptIds,collapsed){
