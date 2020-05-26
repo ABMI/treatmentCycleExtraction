@@ -4,8 +4,12 @@
 \alias{createCohortTable}
 \title{Create cohort table, Insert target cohort}
 \usage{
-createCohortTable(connection, oracleTempSchema = NULL,
-  cohortDatabaseSchema = cdmDatabaseSchema, cohortTable)
+createCohortTable(
+  connection,
+  oracleTempSchema = NULL,
+  cohortDatabaseSchema = cdmDatabaseSchema,
+  cohortTable
+)
 }
 \description{
 Create cohort table, Insert target cohort

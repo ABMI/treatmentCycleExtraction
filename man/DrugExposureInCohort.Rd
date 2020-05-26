@@ -4,9 +4,16 @@
 \alias{DrugExposureInCohort}
 \title{Algorithm for chemotherapy record extraction}
 \usage{
-DrugExposureInCohort(targetConceptIds, connectionDetails, cohortTable,
-  includeDescendant = TRUE, outofCohortPeriod = TRUE,
-  cdmDatabaseSchema, cohortDatabaseSchema, targetCohortId)
+DrugExposureInCohort(
+  targetConceptIds,
+  connectionDetails,
+  cohortTable,
+  includeDescendant = TRUE,
+  outofCohortPeriod = TRUE,
+  cdmDatabaseSchema,
+  cohortDatabaseSchema,
+  targetCohortId
+)
 }
 \description{
 Algorithm for chemotherapy record extraction

@@ -4,12 +4,22 @@
 \alias{executeExtraction}
 \title{Episode / Episode_event table generation for chemotherapy}
 \usage{
-executeExtraction(connectionDetails, oracleTempSchema = NULL,
-  cdmDatabaseSchema, vocaDatabaseSchema = cdmDatabaseSchema,
-  cohortDatabaseSchema, oncologyDatabaseSchema, cohortTable, episodeTable,
-  episodeEventTable, includeConceptIdSetDescendant = TRUE, maxCores,
-  cohortTableCreation = FALSE, episodeTableCreation = FALSE,
-  generateTargetCohort = FALSE)
+executeExtraction(
+  connectionDetails,
+  oracleTempSchema = NULL,
+  cdmDatabaseSchema,
+  vocaDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema,
+  oncologyDatabaseSchema,
+  cohortTable,
+  episodeTable,
+  episodeEventTable,
+  includeConceptIdSetDescendant = TRUE,
+  maxCores,
+  cohortTableCreation = FALSE,
+  episodeTableCreation = FALSE,
+  generateTargetCohort = FALSE
+)
 }
 \value{
 Target Cohort, Episode, Episode Event
